@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Pixel Hub — заявки і попереднє ТЗ (макет).
+   Pixel Hata — заявки і попереднє ТЗ (макет).
    У макеті заявки зберігаються в браузері (localStorage).
    На справжньому сайті цю частину замінить сервер: база + Telegram-канал + пошта.
    ========================================================================== */
@@ -36,7 +36,7 @@ window.PHLeads = (function () {
     L.push("");
     L.push("- Дата: " + dt(lead.createdAt));
     if (lead.contact) L.push("- Клієнт: " + lead.contact.name + " · " + lead.contact.contact);
-    L.push("- Джерело: бот на сайті Pixel Hub");
+    L.push("- Джерело: бот на сайті Pixel Hata");
     L.push("- Статус: попередня оцінка, потрібен дзвінок для уточнення");
     if (lead.description) { L.push(""); L.push("## Опис від клієнта"); L.push(lead.description); }
     if (lead.contact && lead.contact.comment) { L.push(""); L.push("## Коментар клієнта"); L.push(lead.contact.comment); }
@@ -75,7 +75,7 @@ window.PHLeads = (function () {
   function telegramText(lead) {
     const e = lead.estimate;
     return [
-      lead.kind === "question" ? "❓ Питання з сайту Pixel Hub" : "🟠 Нова заявка Pixel Hub",
+      lead.kind === "question" ? "❓ Питання з сайту Pixel Hata" : "🟠 Нова заявка Pixel Hata",
       lead.contact ? "Клієнт: " + lead.contact.name + " · " + lead.contact.contact : "",
       lead.title ? "Проєкт: " + lead.title : "",
       e ? "Оцінка: " + money(e.priceMin) + " – " + money(e.priceMax) + ", " + e.weeks : "",

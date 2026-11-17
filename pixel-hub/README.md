@@ -1,6 +1,6 @@
-# Pixel Hub — бренд, 3D-графіка і макет сайту
+# Pixel Hata — бренд, 3D-графіка і макет сайту
 
-Усе для сайту-портфоліо студії Pixel Hub в одній папці.
+Усе для сайту-портфоліо студії Pixel Hata в одній папці.
 
 ## Що всередині
 
@@ -9,7 +9,7 @@ pixel-hub/
 ├── logos/
 │   ├── 00-all-logos.png      ← 4 варіанти лого на одному аркуші
 │   ├── 3d-marks/             ← знаки 1024×1024, прозорий фон (duo, frame, cube, orbit)
-│   ├── lockups/              ← знак + напис «pixelhub»
+│   ├── lockups/              ← знак + напис «pixelhata»
 │   ├── favicon/              ← знак «Дуо» 32, 64, 180, 512 px (іконка вкладки, аватарка)
 │   └── flat-early/           ← ранні плоскі варіанти у SVG (для історії)
 ├── images-3d/                ← 3D-картинки для прикрашання сайту (PNG, прозорий фон)
@@ -27,7 +27,8 @@ pixel-hub/
 │   ├── js/scenes.js          ← живі 3D-сцени (Three.js)
 │   ├── css/, assets/, vendor/three.min.js
 └── docs/
-    ├── Pixel-Hub-TZ.pdf      ← перше ТЗ сайту
+    ├── Pixel-Hata-TZ.pdf     ← перше ТЗ сайту
+    ├── Pixel-Hata.pptx / .pdf ← презентація проєкту
     ├── bot-scenarios.md      ← усі гілки розмови бота (згенеровано з bot-data.js)
     ├── prompt-for-chatgpt.md ← промпт: ChatGPT генерує навчальні діалоги і файл знань
     └── example-TZ-from-bot.md ← приклад ТЗ, яке бот склав сам

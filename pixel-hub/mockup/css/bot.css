@@ -1,4 +1,4 @@
-/* Pixel Hub — bot, forms, decorations, admin */
+/* Pixel Hata — bot, forms, decorations, admin */
 .chip.toggle[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chip.done{border:0;background:linear-gradient(90deg,var(--coral),var(--pink));color:#fff}
 .chip.ghost{border-style:dashed;color:var(--muted)}

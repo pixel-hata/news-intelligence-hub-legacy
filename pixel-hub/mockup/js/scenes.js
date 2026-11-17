@@ -1,4 +1,4 @@
-/* Pixel Hub — живі 3D-сцени (Three.js r128). Без WebGL показуються картинки-заглушки. */
+/* Pixel Hata — живі 3D-сцени (Three.js r128). Без WebGL показуються картинки-заглушки. */
 /* ---------- 3D scenes ---------- */
 (function(){
   if (!window.THREE) return;

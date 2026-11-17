@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Pixel Hub — бот-помічник без AI.
+   Pixel Hata — бот-помічник без AI.
    Логіка: меню → відповіді на питання (FAQ) або сценарій оцінки → заявка.
    Весь текст бота лежить у bot-data.js.
    ========================================================================== */
@@ -373,7 +373,7 @@
   }
   function estimateText() {
     const e = st.estimate; if (!e) return "";
-    return "Оцінка Pixel Hub: " + st.type.title + "\n" + e.items.map(i => "• " + i.item + ": " + i.h[0] + "–" + i.h[1] + " год").join("\n") + "\nРазом: " + money(e.priceMin) + " – " + money(e.priceMax) + ", " + e.weeks + "\n" + D.NOTE;
+    return "Оцінка Pixel Hata: " + st.type.title + "\n" + e.items.map(i => "• " + i.item + ": " + i.h[0] + "–" + i.h[1] + " год").join("\n") + "\nРазом: " + money(e.priceMin) + " – " + money(e.priceMax) + ", " + e.weeks + "\n" + D.NOTE;
   }
   function copyEstimate() {
     const txt = estimateText();
@@ -530,7 +530,7 @@
   }));
 
   /* greeting */
-  say("Вітаю! Я бот-помічник Pixel Hub. Порахую попередню вартість вашого проєкту або відповім на питання про роботу: ціни, терміни, оплату, хостинг.\n\nОберіть кнопку або напишіть своїми словами, наприклад: «хочу інтернет-магазин одягу».", "menu");
+  say("Вітаю! Я бот-помічник Pixel Hata. Порахую попередню вартість вашого проєкту або відповім на питання про роботу: ціни, терміни, оплату, хостинг.\n\nОберіть кнопку або напишіть своїми словами, наприклад: «хочу інтернет-магазин одягу».", "menu");
 
   window.PHBot = { run, onText, _state: () => st, _match: matchFaq, _faqs: allFaqs, _type: detectType, _calc: calc };
 })();

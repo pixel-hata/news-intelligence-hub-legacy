@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pixel Hub — заявки і навчання бота</title>
+<title>Pixel Hata — заявки і навчання бота</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap">
@@ -40,7 +40,7 @@
 <div class="admin">
   <div class="admin-top">
     <div style="display:grid;gap:10px">
-      <a class="brand" href="index.html"><img src="assets/logo-duo.png" alt="" width="36" height="36"><span>pixel<b>hub</b></span></a>
+      <a class="brand" href="index.html"><img src="assets/logo-duo.png" alt="" width="36" height="36"><span>pixel<b>hata</b></span></a>
       <h1 class="h2" style="font-size:clamp(26px,4vw,40px)">кабінет команди</h1>
     </div>
     <div class="tabs" role="tablist" aria-label="Розділи кабінету">
@@ -256,7 +256,7 @@
     else out.append("Бот не зрозуміє цю фразу. Додайте її до відповіді нижче або напишіть нову.");
   };
   document.getElementById("testIn").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("testBtn").click(); });
-  document.getElementById("exp").onclick = () => download("pixelhub-bot-knowledge.json", LR.exportJson(), "application/json");
+  document.getElementById("exp").onclick = () => download("pixelhata-bot-knowledge.json", LR.exportJson(), "application/json");
   document.getElementById("imp").onchange = e => {
     const file = e.target.files[0], res = document.getElementById("impRes"); if (!file) return;
     file.text().then(t => { const n = LR.importJson(t); res.textContent = "Готово: додано " + n + " нових фраз і відповідей."; renderLearn(); e.target.value = ""; }).catch(() => { res.textContent = "Не вдалося прочитати файл. Оберіть файл, завантажений кнопкою «Завантажити знання»."; });
