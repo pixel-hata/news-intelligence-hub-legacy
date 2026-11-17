@@ -54,7 +54,12 @@
     const w = el("div", "chips");
     btns.forEach(b => {
       const x = el("button", "chip", b.label); x.type = "button";
-      x.addEventListener("click", () => { clearButtons(); userMsg(b.label); run(b.action); });
+      x.addEventListener("click", () => {
+        clearButtons(); userMsg(b.label);
+        if (st.lastUnknown && LEARN && b.action.startsWith("faq:")) LEARN.suggest(st.lastUnknown, b.action.slice(4));
+        if (b.action !== "wrong") st.lastUnknown = null;
+        run(b.action);
+      });
       w.append(x);
     });
     log.append(w);
@@ -63,17 +68,37 @@
     if (a === "menu") return { label: "Меню", action: "menu" };
     if (a === "estimate") return { label: "Порахувати вартість", action: "estimate" };
     if (a === "human") return { label: "Написати людині", action: "human" };
-    if (a.startsWith("faq:")) { const f = D.FAQ.find(x => x.id === a.slice(4)); return f ? { label: FAQ_LABEL[f.id] || f.id, action: a } : null; }
+    if (a.startsWith("faq:")) { const f = faqById(a.slice(4)); return f ? { label: FAQ_LABEL[f.id] || (LEARN ? LEARN.title(f) : f.id), action: a } : null; }
     return null;
   }
   const FAQ_LABEL = { prices: "Ціни", rate: "Ставка", included: "Що входить у ціну?", cheaper: "Як зробити дешевше?", timing: "Терміни", urgent: "Терміново", process: "Як ми працюємо", payment: "Оплата", installments: "Оплата частинами", contract: "Договір", hosting: "Хостинг і домен", ownership: "Кому належить код", support: "Підтримка", warranty: "Гарантія", edits: "Правки", portfolio: "Портфоліо", ready: "Готові роботи", team: "Хто ви", stack: "Технології", cms: "WordPress / Tilda", admin: "Адмін-панель", mobile: "Мобільна версія", app: "Мобільний застосунок", seo: "SEO", content: "Тексти і фото", languages: "Мови", integrations: "Інтеграції", ai: "AI", redesign: "Редизайн", security: "Безпека", meeting: "Дзвінок", schedule: "Графік роботи", where: "Де ви працюєте", contacts: "Контакти", news: "IT-новини", bot: "Хто відповідає" };
 
   /* ---------- text understanding (keywords, no AI) ---------- */
   const norm = s => " " + String(s).toLowerCase().replace(/[’`ʼ']/g, "'").replace(/[^\p{L}\p{N}'@+.\s-]/gu, " ").replace(/\s+/g, " ").trim() + " ";
+  const LEARN = window.PHLearn;
+  const allFaqs = () => (LEARN ? LEARN.faqs() : D.FAQ);
+  const faqById = id => allFaqs().find(f => f.id === id);
+  /* відстань Левенштейна — щоб розуміти слова з одруківками */
+  function lev(a, b) {
+    if (Math.abs(a.length - b.length) > 1) return 2;
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  }
+  function keyScore(t, words, key) {
+    const k = key.toLowerCase();
+    if (t.includes(k)) return k.trim().length;
+    const kt = k.trim();
+    if (kt.length < 5 || kt.includes(" ")) return 0;
+    return words.some(w => w.length >= kt.length - 1 && lev(w.slice(0, kt.length), kt) <= 1) ? kt.length - 1 : 0;
+  }
   function matchFaq(text) {
-    const t = norm(text); let best = null, score = 0;
-    D.FAQ.forEach(f => {
-      let s = 0; f.keys.forEach(k => { if (t.includes(k.toLowerCase())) s += k.trim().length; });
+    if (LEARN && LEARN.match) return LEARN.match(text);
+    const t = norm(text), words = t.trim().split(" "); let best = null, score = 0;
+    allFaqs().forEach(f => {
+      let s = 0; f.keys.forEach(k => { s += keyScore(t, words, k); });
       if (s > score) { score = s; best = f; }
     });
     return best;
@@ -112,7 +137,8 @@
     if (action === "estimate") return chooseType();
     if (action === "human") return humanForm();
     if (action.startsWith("type:")) return startEstimate(action.slice(5), extra);
-    if (action.startsWith("faq:")) return answerFaq(D.FAQ.find(f => f.id === action.slice(4)));
+    if (action.startsWith("faq:")) return answerFaq(faqById(action.slice(4)));
+    if (action === "wrong") return markWrong();
     if (action === "send") return contactForm();
     if (action === "mvp") return showMvp();
     if (action === "redo") return startEstimate(st.typeId);
@@ -120,13 +146,19 @@
     if (action === "tz") return showTz();
   }
   function showMenu() { st = { mode: "idle" }; say("Чим можу допомогти?", "menu"); }
-  function answerFaq(f) {
+  function answerFaq(f, fromText) {
     if (!f) return fallback();
+    if (fromText) {
+      st.lastAsked = fromText; st.lastFaq = f.id;
+      let nx = f.next || "menu"; if (nx === "menu") nx = D.MENU.slice();
+      return say(f.text, nx.concat([{ label: "Це не те, що я питав", action: "wrong" }]));
+    }
     say(f.text, f.next || "menu");
   }
   let fbN = 0;
-  function fallback() {
-    say(D.FALLBACK[fbN++ % D.FALLBACK.length], "menu");
+  function fallback(text) {
+    if (text && LEARN) { LEARN.logUnknown(text, st.mode); st.lastUnknown = text; }
+    say(D.FALLBACK[fbN++ % D.FALLBACK.length] + (text ? "\n\nЯ записав ваше питання — команда навчить мене на нього відповідати." : ""), D.MENU.concat([]));
   }
   function chooseType() {
     st = { mode: "pick" };
@@ -289,7 +321,7 @@
     c.append(body); log.append(c);
   }
   function showMvp() {
-    const e = st.estimate; if (!e || !e.mvp) return answerFaq(D.FAQ.find(f => f.id === "cheaper"));
+    const e = st.estimate; if (!e || !e.mvp) return answerFaq(faqById("cheaper"));
     const removed = e.items.filter(i => !e.mvp.items.some(x => x.item === i.item)).map(i => "• " + i.item);
     say("Мінімальна версія (MVP) — без додаткових функцій — коштуватиме приблизно **" + money(e.mvp.priceMin) + " – " + money(e.mvp.priceMax) + "**.\n\nЩо відкладаємо на потім:\n" + removed.join("\n") + "\n\nЇх можна додати після запуску, коли побачите, що потрібно саме вам.",
       [{ label: "Надіслати заявку", action: "send" }, { label: "Змінити відповіді", action: "redo" }, { label: "Меню", action: "menu" }]);
@@ -382,6 +414,12 @@
     say("Це чернетка: на дзвінку ми її уточнимо і доповнимо.", "menu");
   }
 
+  function markWrong() {
+    if (LEARN && st.lastAsked) LEARN.logWrong(st.lastAsked, st.lastFaq);
+    st.lastUnknown = st.lastAsked || null;
+    say("Дякую, що підказали! Я записав це — команда навчить мене правильно відповідати. Оберіть тему нижче або напишіть людині.", D.MENU.concat([]));
+  }
+
   /* ---------- free text ---------- */
   function onText(text) {
     if (isCmd(text, "menu")) return showMenu();
@@ -397,6 +435,7 @@
         if (idx) { clearButtons(); return answer(idx); }
         const f = matchFaq(text);
         if (f && f.id !== "hello" && f.id !== "thanks") { answerFaqInline(f); return; }
+        if (LEARN) LEARN.logUnknown(text, "оцінка: " + q.text);
         say("Не зрозумів відповідь. Оберіть варіант кнопкою нижче, напишіть «назад» або «меню».");
         after(() => { clearButtons(); renderOptions(q); });
         return;
@@ -410,9 +449,9 @@
       return startEstimate(type, text.length > 25 ? text : "");
     }
     if (isCmd(text, "estimate") && !f) return chooseType();
-    if (f) return answerFaq(f);
-    if (st.mode === "pick") { say("Оберіть тип проєкту кнопкою — або «Інше / не знаю», якщо нічого не підходить."); return; }
-    fallback();
+    if (f) return answerFaq(f, text);
+    if (st.mode === "pick") { if (LEARN) LEARN.logUnknown(text, "вибір типу проєкту"); say("Оберіть тип проєкту кнопкою — або «Інше / не знаю», якщо нічого не підходить."); return; }
+    fallback(text);
   }
   function answerFaqInline(f) {
     say(f.text);
@@ -439,5 +478,5 @@
   /* greeting */
   say("Вітаю! Я бот-помічник Pixel Hub. Порахую попередню вартість вашого проєкту або відповім на питання про роботу: ціни, терміни, оплату, хостинг.\n\nОберіть кнопку або напишіть своїми словами, наприклад: «хочу інтернет-магазин одягу».", "menu");
 
-  window.PHBot = { run, onText, _state: () => st, _match: matchFaq, _type: detectType, _calc: calc };
+  window.PHBot = { run, onText, _state: () => st, _match: matchFaq, _faqs: allFaqs, _type: detectType, _calc: calc };
 })();
