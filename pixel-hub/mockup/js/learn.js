@@ -78,14 +78,33 @@ window.PHLearn = (function () {
   /* перенесення знань між браузерами / на сервер */
   const exportJson = () => JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), learned: learned(), unknown: unknown() }, null, 2);
   function importJson(text) {
-    const o = JSON.parse(text);
-    if (!o || !o.learned) throw new Error("Це не файл знань бота");
-    const cur = learned(), inc = o.learned;
-    Object.keys(inc.extraKeys || {}).forEach(id => { cur.extraKeys[id] = [...new Set((cur.extraKeys[id] || []).concat(inc.extraKeys[id]))]; });
-    (inc.custom || []).forEach(c => { if (!cur.custom.some(x => x.id === c.id)) cur.custom.push(c); });
+    // приймає і файл з кабінету, і відповідь ChatGPT (навіть якщо JSON обгорнутий у ```json)
+    let raw = String(text).trim();
+    const fence = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fence) raw = fence[1];
+    else { const a = raw.indexOf("{"), z = raw.lastIndexOf("}"); if (a > 0 && z > a) raw = raw.slice(a, z + 1); }
+    const o = JSON.parse(raw);
+    const inc = o && (o.learned || ((o.extraKeys || o.custom) ? o : null));
+    if (!inc) throw new Error("Це не файл знань бота");
+    const cur = learned(), known = new Set(D.FAQ.map(f => f.id));
+    let added = 0;
+    Object.keys(inc.extraKeys || {}).forEach(id => {
+      if (!known.has(id) && !cur.custom.some(c => c.id === id)) return;
+      const keys = (inc.extraKeys[id] || []).map(normKey).filter(k => k.length >= 2);
+      const before = (cur.extraKeys[id] || []).length;
+      cur.extraKeys[id] = [...new Set((cur.extraKeys[id] || []).concat(keys))];
+      added += cur.extraKeys[id].length - before;
+    });
+    (inc.custom || []).forEach((c, i) => {
+      if (!c || !c.text) return;
+      const id = String(c.id || ("gpt_" + Date.now().toString(36) + i)).replace(/[^\w-]/g, "_");
+      if (cur.custom.some(x => x.id === id)) return;
+      cur.custom.push({ id, title: String(c.title || "Нова відповідь"), text: String(c.text), keys: [...new Set((c.keys || []).map(normKey).filter(k => k.length >= 2))], createdAt: new Date().toISOString() });
+      added++;
+    });
     (inc.ignored || []).forEach(n => { if (!cur.ignored.includes(n)) cur.ignored.push(n); });
     saveLearned(cur);
-    return true;
+    return added;
   }
 
   /* розпізнавання питання (той самий алгоритм, що в боті) */

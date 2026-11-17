@@ -88,11 +88,14 @@
 
     <div class="u-card">
       <h2 class="subh" style="margin:0">Перенести знання</h2>
-      <p class="muted" style="margin:0;font-size:14px">Завантажте файл знань, щоб передати Дімі або перенести на справжній сайт. Імпорт додає знання, нічого не стираючи.</p>
+      <p class="muted" style="margin:0;font-size:14px">Завантажте файл знань, щоб передати Дімі або перенести на справжній сайт. Імпорт додає знання, нічого не стираючи. Сюди ж можна завантажити файл від ChatGPT (див. <code>docs/prompt-for-chatgpt.md</code>) — або вставити його текст у поле нижче.</p>
+      <label for="impText" class="sr">Текст файлу знань</label>
+      <textarea id="impText" rows="4" placeholder="Вставте сюди JSON від ChatGPT і натисніть «Додати з тексту»" style="font:13px/1.5 ui-monospace,monospace;color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%"></textarea>
+      <div class="lf-act"><button type="button" class="btn sm" id="impTextBtn">Додати з тексту</button></div>
       <div class="lf-act">
         <button type="button" class="btn sm" id="exp">Завантажити знання (.json)</button>
         <label class="btn sm" for="imp" style="display:inline-flex;align-items:center">Імпортувати файл</label>
-        <input type="file" id="imp" accept="application/json,.json" class="sr">
+        <input type="file" id="imp" accept="application/json,.json,.txt,text/plain" class="sr">
       </div>
       <p class="tres" id="impRes" aria-live="polite"></p>
     </div>
@@ -256,9 +259,14 @@
   document.getElementById("exp").onclick = () => download("pixelhub-bot-knowledge.json", LR.exportJson(), "application/json");
   document.getElementById("imp").onchange = e => {
     const file = e.target.files[0], res = document.getElementById("impRes"); if (!file) return;
-    file.text().then(t => { LR.importJson(t); res.textContent = "Знання додано."; renderLearn(); }).catch(() => { res.textContent = "Не вдалося прочитати файл. Оберіть файл, завантажений кнопкою «Завантажити знання»."; });
+    file.text().then(t => { const n = LR.importJson(t); res.textContent = "Готово: додано " + n + " нових фраз і відповідей."; renderLearn(); e.target.value = ""; }).catch(() => { res.textContent = "Не вдалося прочитати файл. Оберіть файл, завантажений кнопкою «Завантажити знання»."; });
   };
 
+  document.getElementById("impTextBtn").onclick = () => {
+    const res = document.getElementById("impRes"), ta = document.getElementById("impText");
+    try { const n = LR.importJson(ta.value); res.textContent = "Готово: додано " + n + " нових фраз і відповідей."; ta.value = ""; renderLearn(); }
+    catch (err) { res.textContent = "Не вийшло прочитати текст. Скопіюйте від ChatGPT тільки блок JSON — від першої { до останньої }."; }
+  };
   window.addEventListener("storage", () => { renderLeads(); renderLearn(); });
   renderLeads(); renderLearn();
   let start = "leads"; try { start = localStorage.getItem("pixelhub.adminTab") || "leads"; } catch (e) {}
