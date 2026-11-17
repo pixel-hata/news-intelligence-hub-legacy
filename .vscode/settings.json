@@ -1,0 +1,37 @@
+{
+  "search.followSymlinks": false,
+  "search.exclude": {
+    "**/.git": true,
+    "**/.dart_tool": true,
+    "**/.gradle": true,
+    "**/.kotlin": true,
+    "**/.next": true,
+    "**/.turbo": true,
+    "**/.pub-cache": true,
+    "**/.idea": true,
+    "**/build": true,
+    "**/coverage": true,
+    "**/dist": true,
+    "**/node_modules": true,
+    "**/UA-SKILLS.html": true,
+    "**/UA-SKILLS_files": true,
+    "**/01_source_structured.md": true,
+    "**/02_source_raw_text.md": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.dart_tool/**": true,
+    "**/.gradle/**": true,
+    "**/.kotlin/**": true,
+    "**/.next/**": true,
+    "**/.turbo/**": true,
+    "**/.pub-cache/**": true,
+    "**/.idea/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true,
+    "**/UA-SKILLS_files/**": true
+  }
+}

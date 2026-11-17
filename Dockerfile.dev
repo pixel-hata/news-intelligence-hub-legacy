@@ -1,0 +1,18 @@
+FROM node:22-alpine
+
+WORKDIR /workspace
+ENV DATABASE_URL=postgresql://news_hub:news_hub_password@postgres:5432/news_hub
+
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY apps/worker/package.json apps/worker/package.json
+COPY packages/database/package.json packages/database/package.json
+COPY packages/database/prisma packages/database/prisma
+COPY packages/shared/package.json packages/shared/package.json
+
+RUN npm install && npm run db:generate
+
+COPY . .
+
+CMD ["npm", "run", "dev"]

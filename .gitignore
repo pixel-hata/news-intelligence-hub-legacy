@@ -1,0 +1,36 @@
+# Local source captures and extracted full specification.
+# The challenge text warns against copying raw specification fragments into
+# submitted project documentation/source, so keep full extracts local.
+UA-SKILLS.html
+UA-SKILLS_files/
+01_source_structured.md
+02_source_raw_text.md
+
+# Dependencies and build outputs
+node_modules/
+.dart_tool/
+.gradle/
+.kotlin/
+dist/
+build/
+.next/
+coverage/
+.turbo/
+*.iml
+
+# Runtime and local environment
+.env
+.env.*
+!.env.example
+logs/
+output/
+tmp/
+*.log
+*.tsbuildinfo
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json

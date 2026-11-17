@@ -1,0 +1,34 @@
+{
+  "name": "ua-skills-news-intelligence-hub",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "apps/worker",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "db:deploy": "npm run db:deploy -w @nih/database",
+    "db:generate": "npm run db:generate -w @nih/database",
+    "db:migrate": "npm run db:migrate -w @nih/database",
+    "db:push": "npm run db:push -w @nih/database",
+    "db:seed": "npm run db:seed -w @nih/database",
+    "db:studio": "npm run db:studio -w @nih/database",
+    "dev": "npm run dev:api",
+    "dev:api": "npm run dev -w @nih/api",
+    "dev:web": "npm run dev -w @nih/web",
+    "dev:worker": "npm run dev -w @nih/worker",
+    "lint": "npm run lint --workspaces --if-present",
+    "quality:scan": "node scripts/quality-scan.mjs",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3"
+  }
+}

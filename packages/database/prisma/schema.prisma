@@ -1,0 +1,363 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FeedStatus {
+  ACTIVE
+  PAUSED
+  ERROR
+}
+
+enum ArticleStatus {
+  DISCOVERED
+  FILTERED
+  QUEUED
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+enum ArticleImportance {
+  HIGH
+  NORMAL
+  JUNK
+}
+
+enum EntityType {
+  PERSON
+  COMPANY
+  PRODUCT
+  TECHNOLOGY
+  LOCATION
+  TOPIC
+  OTHER
+}
+
+enum GraphNodeType {
+  ARTICLE
+  ENTITY
+}
+
+enum GraphEdgeType {
+  MENTIONS
+  CO_MENTION
+  SIMILAR
+}
+
+enum LlmProvider {
+  MOCK
+  OPENAI
+  ANTHROPIC
+}
+
+model User {
+  id                  String                   @id @default(cuid())
+  email               String                   @unique
+  passwordHash        String
+  displayName         String?
+  emailConfirmedAt    DateTime?
+  sessionVersion      Int                      @default(0)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  articles            Article[]
+  categories          Category[]
+  categorizationAxes  CategorizationAxis[]
+  digests             Digest[]
+  emailConfirmations  EmailConfirmationToken[]
+  entities            Entity[]
+  feeds               Feed[]
+  graphEdges          GraphEdge[]
+  llmCacheEntries     LlmCacheEntry[]
+  llmCalls            LlmCall[]
+}
+
+model EmailConfirmationToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model Feed {
+  id                     String    @id @default(cuid())
+  userId                 String
+  title                  String
+  url                    String
+  status                 FeedStatus @default(ACTIVE)
+  pollingIntervalMinutes Int       @default(30)
+  etag                   String?
+  lastModified           String?
+  lastPolledAt           DateTime?
+  lastError              String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  articles               Article[]
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, url])
+  @@index([userId, status])
+}
+
+model Article {
+  id                String             @id @default(cuid())
+  userId            String
+  feedId            String?
+  title             String
+  sourceUrl         String
+  normalizedUrl     String
+  urlHash           String
+  author            String?
+  publishedAt       DateTime?
+  excerpt           String?
+  rawContent        String?
+  textContent       String?
+  textContentHash   String?
+  language          String?
+  status            ArticleStatus      @default(DISCOVERED)
+  importance        ArticleImportance?
+  summary           String?
+  filteredReason    String?
+  similarityGroupId String?
+  similarCount      Int                @default(0)
+  llmCacheKey       String?
+  processedAt       DateTime?
+  failedReason      String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  axisLabels        ArticleAxisLabel[]
+  categories        ArticleCategory[]
+  entities          ArticleEntity[]
+  feed              Feed?              @relation(fields: [feedId], references: [id], onDelete: SetNull)
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, normalizedUrl])
+  @@index([userId, status])
+  @@index([feedId, publishedAt])
+  @@index([userId, textContentHash])
+  @@index([userId, similarityGroupId])
+}
+
+model Category {
+  id              String            @id @default(cuid())
+  userId          String
+  name            String
+  description     String?
+  ruleText        String?
+  includeKeywords String[]          @default([])
+  excludeKeywords String[]          @default([])
+  color           String            @default("#64748b")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  articles        ArticleCategory[]
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model ArticleCategory {
+  articleId  String
+  categoryId String
+  confidence Float?
+  createdAt  DateTime @default(now())
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, categoryId])
+  @@index([categoryId])
+}
+
+model CategorizationAxis {
+  id          String      @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  prompt      String
+  sortOrder   Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  labels      AxisLabel[]
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId, isActive])
+}
+
+model AxisLabel {
+  id          String             @id @default(cuid())
+  axisId      String
+  name        String
+  description String?
+  sortOrder   Int                @default(0)
+  articles    ArticleAxisLabel[]
+  axis        CategorizationAxis @relation(fields: [axisId], references: [id], onDelete: Cascade)
+
+  @@unique([axisId, name])
+  @@index([axisId])
+}
+
+model ArticleAxisLabel {
+  articleId  String
+  axisLabelId String
+  confidence Float?
+  createdAt  DateTime  @default(now())
+  article    Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  axisLabel  AxisLabel @relation(fields: [axisLabelId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, axisLabelId])
+  @@index([axisLabelId])
+}
+
+model Entity {
+  id                String          @id @default(cuid())
+  userId            String
+  type              EntityType
+  name              String
+  normalizedName    String
+  description       String?
+  canonicalEntityId String?
+  confidence        Float?
+  firstSeenAt       DateTime?
+  lastSeenAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  aliases           EntityAlias[]
+  articles          ArticleEntity[]
+  canonicalEntity   Entity?         @relation("EntityCanonical", fields: [canonicalEntityId], references: [id])
+  duplicateEntities Entity[]        @relation("EntityCanonical")
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, normalizedName])
+  @@index([userId, type])
+  @@index([canonicalEntityId])
+}
+
+model EntityAlias {
+  id              String @id @default(cuid())
+  entityId        String
+  alias           String
+  normalizedAlias String
+  entity          Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@unique([entityId, normalizedAlias])
+  @@index([normalizedAlias])
+}
+
+model ArticleEntity {
+  articleId  String
+  entityId   String
+  mentions   Int      @default(1)
+  relevance  Float?
+  evidence   Json?
+  createdAt  DateTime @default(now())
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  entity     Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, entityId])
+  @@index([entityId])
+}
+
+model GraphEdge {
+  id             String        @id @default(cuid())
+  userId         String
+  sourceNodeType GraphNodeType
+  sourceNodeId   String
+  targetNodeType GraphNodeType
+  targetNodeId   String
+  edgeType       GraphEdgeType
+  weight         Float         @default(1)
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceNodeType, sourceNodeId, targetNodeType, targetNodeId, edgeType])
+  @@index([userId, edgeType])
+}
+
+model LlmCacheEntry {
+  id          String      @id @default(cuid())
+  userId      String
+  cacheKey    String
+  provider    LlmProvider
+  model       String
+  task        String
+  inputHash   String
+  outputJson  Json
+  promptHash  String?
+  createdAt   DateTime    @default(now())
+  expiresAt   DateTime?
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cacheKey])
+  @@index([provider, model, task])
+}
+
+model LlmCall {
+  id               String      @id @default(cuid())
+  userId           String
+  articleId        String?
+  provider         LlmProvider
+  model            String
+  task             String
+  promptTokens     Int         @default(0)
+  completionTokens Int         @default(0)
+  totalTokens      Int         @default(0)
+  estimatedCostUsd Decimal?    @db.Decimal(12, 6)
+  durationMs       Int?
+  cacheHit         Boolean     @default(false)
+  status           String
+  errorMessage     String?
+  createdAt        DateTime    @default(now())
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([provider, model, task])
+}
+
+model QueueJobLog {
+  id          String    @id @default(cuid())
+  queueName   String
+  jobName     String
+  jobId       String?
+  userId      String?
+  status      String
+  attempts    Int       @default(0)
+  payload     Json?
+  error       String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([queueName, status])
+  @@index([userId, createdAt])
+}
+
+model Digest {
+  id          String   @id @default(cuid())
+  userId      String
+  periodStart DateTime
+  periodEnd   DateTime
+  scopeHash   String   @default("all")
+  scopeLabel  String?
+  title       String
+  summary     String
+  payload     Json
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, periodStart, periodEnd])
+  @@index([userId, scopeHash])
+}
