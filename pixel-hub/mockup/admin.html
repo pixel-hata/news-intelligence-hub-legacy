@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pixel Hub — заявки</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/bot.css">
+</head>
+<body>
+<div class="admin">
+  <div class="admin-top">
+    <div style="display:grid;gap:10px">
+      <a class="brand" href="index.html"><img src="assets/logo-duo.png" alt="" width="36" height="36"><span>pixel<b>hub</b></span></a>
+      <h1 class="h2" style="font-size:clamp(26px,4vw,40px)">заявки з бота</h1>
+    </div>
+    <div class="filters" role="group" aria-label="Фільтр заявок">
+      <button type="button" class="pill" aria-pressed="true" data-k="all">Усі</button>
+      <button type="button" class="pill" aria-pressed="false" data-k="estimate">Оцінки</button>
+      <button type="button" class="pill" aria-pressed="false" data-k="question">Питання</button>
+      <button type="button" class="btn" id="clearAll" style="min-height:40px;font-size:13px">Очистити все</button>
+    </div>
+  </div>
+  <p class="admin-note">Це макет: заявки зберігаються тільки в цьому браузері. На справжньому сайті кожна заявка піде в базу, у ваш спільний Telegram-канал і на пошту — з попереднім ТЗ файлом.</p>
+  <p class="muted" id="count"></p>
+  <div id="list" style="display:grid;gap:16px"></div>
+</div>
+<script src="js/bot-data.js"></script>
+<script src="js/leads.js"></script>
+<script>
+(function () {
+  const L = window.PHLeads, list = document.getElementById("list"), count = document.getElementById("count");
+  let filter = "all", confirmClear = false;
+  const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+  const copy = (text, btn) => { const done = () => { const o = btn.textContent; btn.textContent = "Скопійовано"; setTimeout(() => btn.textContent = o, 1500); };
+    try { navigator.clipboard.writeText(text).then(done, () => { fb(text); done(); }); } catch (e) { fb(text); done(); } };
+  const fb = text => { const ta = document.createElement("textarea"); ta.value = text; document.body.append(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); };
+  function download(name, text) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" })); a.download = name;
+    document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function render() {
+    const all = L.list(), items = all.filter(l => filter === "all" || l.kind === filter);
+    count.textContent = "Усього: " + all.length + " · оцінок: " + all.filter(l => l.kind === "estimate").length + " · питань: " + all.filter(l => l.kind === "question").length;
+    if (!items.length) { list.replaceChildren(el("p", "empty", "Заявок поки немає. Пройдіть оцінку в боті на головній сторінці — і заявка зʼявиться тут.")); return; }
+    list.replaceChildren(...items.map(l => {
+      const a = el("article", "lead"), top = el("div", "lead-top");
+      top.append(el("h3", null, l.title || "Заявка"), el("span", "st " + l.kind, l.kind === "question" ? "питання" : "оцінка"));
+      const meta = el("div", "lead-meta");
+      meta.append(el("span", null, new Date(l.createdAt).toLocaleString("uk-UA")));
+      if (l.contact) { const s = el("span"); s.append("Клієнт: ", el("b", null, l.contact.name), " · " + l.contact.contact); meta.append(s); }
+      if (l.estimate) { const s = el("span"); s.append("Оцінка: ", el("b", null, L.money(l.estimate.priceMin) + " – " + L.money(l.estimate.priceMax)), " · " + l.estimate.weeks); meta.append(s); }
+      a.append(top, meta);
+      if (l.question) a.append(el("p", null, "Питання: " + l.question));
+      const d1 = el("details"); d1.open = true; d1.append(el("summary", null, "Попереднє ТЗ"), el("pre", null, l.tz || "")); a.append(d1);
+      if (l.transcript && l.transcript.length) { const d2 = el("details"); d2.append(el("summary", null, "Розмова з ботом (" + l.transcript.length + ")"), el("pre", null, l.transcript.map(t => (t.role === "user" ? "Клієнт: " : "Бот: ") + t.text).join("\n\n"))); a.append(d2); }
+      const act = el("div", "lf-act");
+      const b1 = el("button", "btn", "Скопіювати для Telegram"); b1.type = "button"; b1.onclick = () => copy(L.telegramText(l) + "\n\n" + (l.tz || ""), b1);
+      const b2 = el("button", "btn", "Завантажити ТЗ (.md)"); b2.type = "button"; b2.onclick = () => download("TZ-" + (l.title || "lead").replace(/[^\p{L}\p{N}]+/gu, "-") + "-" + l.id + ".md", l.tz || "");
+      const b3 = el("button", "btn", "Видалити"); b3.type = "button";
+      b3.onclick = () => { if (b3.dataset.sure) { L.remove(l.id); render(); } else { b3.dataset.sure = "1"; b3.textContent = "Точно видалити?"; } };
+      act.append(b1, b2, b3); a.append(act);
+      return a;
+    }));
+  }
+  document.querySelectorAll("[data-k]").forEach(b => b.onclick = () => { filter = b.dataset.k; document.querySelectorAll("[data-k]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); });
+  const ca = document.getElementById("clearAll");
+  ca.onclick = () => { if (confirmClear) { L.clear(); confirmClear = false; ca.textContent = "Очистити все"; render(); } else { confirmClear = true; ca.textContent = "Точно очистити?"; } };
+  window.addEventListener("storage", render);
+  render();
+})();
+</script>
+</body>
+</html>

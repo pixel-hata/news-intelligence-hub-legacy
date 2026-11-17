@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="l2a" cx=".72" cy=".75" r=".55"><stop offset="0" stop-color="#FF6A45"></stop><stop offset="1" stop-color="#FF6A45" stop-opacity="0"></stop></radialGradient>
+                <radialGradient id="l2b" cx=".22" cy=".8" r=".45"><stop offset="0" stop-color="#FFB36B"></stop><stop offset="1" stop-color="#FFB36B" stop-opacity="0"></stop></radialGradient>
+                <radialGradient id="l2c" cx=".65" cy=".25" r=".5"><stop offset="0" stop-color="#3BD1FF"></stop><stop offset="1" stop-color="#3BD1FF" stop-opacity="0"></stop></radialGradient>
+                <linearGradient id="l2base" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3550F0"></stop><stop offset=".5" stop-color="#7B4DFF"></stop><stop offset="1" stop-color="#FF3D6E"></stop></linearGradient>
+                <radialGradient id="l2shade" cx=".5" cy=".5" r=".7"><stop offset=".55" stop-color="#05060A" stop-opacity="0"></stop><stop offset="1" stop-color="#05060A" stop-opacity=".55"></stop></radialGradient>
+                <linearGradient id="l2hole" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0B0E2A"></stop><stop offset="1" stop-color="#1D2C8A"></stop></linearGradient>
+              </defs>
+              <rect x="6" y="6" width="88" height="88" rx="30" fill="url(#l2base)"></rect>
+              <rect x="6" y="6" width="88" height="88" rx="30" fill="url(#l2c)"></rect>
+              <rect x="6" y="6" width="88" height="88" rx="30" fill="url(#l2b)"></rect>
+              <rect x="6" y="6" width="88" height="88" rx="30" fill="url(#l2a)"></rect>
+              <rect x="6" y="6" width="88" height="88" rx="30" fill="url(#l2shade)"></rect>
+              <rect x="36" y="36" width="28" height="28" rx="9" fill="url(#l2hole)"></rect>
+              <rect x="38" y="38" width="10" height="5" rx="2.5" fill="#fff" opacity=".35"></rect>
+              <ellipse cx="30" cy="22" rx="14" ry="6" fill="#fff" opacity=".45" transform="rotate(-25 30 22)"></ellipse>
+            </svg>

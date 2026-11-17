@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pixel Hub — сайти, CRM, боти, дизайн</title>
+<meta name="description" content="Pixel Hub — студія двох розробників: сайти, CRM, Telegram-боти, дизайн і лого від ідеї до запуску.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/bot.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="in">
+    <a class="brand" href="#top" aria-label="Pixel Hub, на початок"><img src="assets/logo-duo.png" alt="" width="40" height="40"><span>pixel<b>hub</b></span></a>
+    <nav class="links" aria-label="Розділи">
+      <a href="#about">Про нас</a><a href="#work">Портфоліо</a><a href="#ready">Готові роботи</a><a href="#prices">Ціни</a><a href="#news">IT-новини</a><a href="#contacts">Контакти</a>
+    </nav>
+    <a class="btn hot" href="#estimate" data-bot="estimate" style="min-height:42px;padding:0 18px;font-size:14px">Оцінити проєкт</a>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="top">
+  <div class="in hero-grid">
+    <div class="hero-copy">
+      <h1>робимо сайти, які <em>помічають</em></h1>
+      <p class="muted" style="font-size:18px;max-width:40ch">Двоє розробників, одна студія. Сайти, CRM, боти, дизайн і лого від ідеї до запуску.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <a class="btn hot" href="#estimate" data-bot="estimate">Порахувати вартість</a>
+        <a class="btn" href="#work">Наші роботи</a>
+      </div>
+    </div>
+    <div class="hero-stage">
+      <div class="hero-glow"></div>
+      <img class="gl-fallback" src="assets/blob.png" alt="">
+      <canvas class="gl" data-scene="blob" role="img" aria-label="Тривимірна глянцева крапля, що переливається"></canvas>
+    </div>
+    <aside class="hero-aside">
+      <span class="eyebrow" style="color:var(--muted)">давайте працювати разом</span>
+      <p class="big">Є ідея? Пишіть у Telegram <span>[@ВАШ_НІК]</span></p>
+      <p class="muted" style="font-size:15px">Відповідаємо протягом дня і чесно кажемо, скільки це коштує.</p>
+      <a href="#work" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;min-height:44px">наші проєкти <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+    </aside>
+  </div>
+  <div class="in pills">
+    <span class="pill big">Веб-сайти</span><span class="pill big">CRM-системи</span><span class="pill big">Дизайн і лого</span><span class="pill big">Telegram-боти</span><span class="pill big">AI-сервіси</span>
+  </div>
+</section>
+
+<section class="sec deco-wrap" id="about">
+  <img class="deco deco-r" src="assets/orbit.png" alt="" loading="lazy">
+  <div class="in">
+    <div class="sec-head">
+      <div><span class="eyebrow">01 // хто ми</span><h2 class="h2">двоє людей, які доводять ідеї до робочого продукту</h2></div>
+      <p class="muted">[Спільний опис: 2–3 речення про вас як команду, як працюєте і чим відрізняєтесь.]</p>
+    </div>
+    <div class="duo">
+      <article class="card person"><div class="ph">[ваше фото]</div><div class="txt"><span class="role">[роль: дизайн / frontend]</span><h3>[Ваше імʼя]</h3><p class="muted">[2–3 речення про себе: що робите, що любите, з чим до вас іти.]</p></div></article>
+      <article class="card person"><div class="ph">[фото Діми]</div><div class="txt"><span class="role">[роль: backend / AI]</span><h3>Дмитро Завадський</h3><p class="muted">[2–3 речення про Діму. Автор News Intelligence Hub, 6 місце в турнірі AI-Skills від UA-Skills.]</p></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="work">
+  <div class="in">
+    <div class="sec-head">
+      <div><span class="eyebrow">02 // портфоліо</span><h2 class="h2">наші роботи</h2></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" role="group" aria-label="Фільтр робіт">
+        <button type="button" class="pill" aria-pressed="true" data-f="all">Усі</button>
+        <button type="button" class="pill" aria-pressed="false" data-f="me">[Ваше імʼя]</button>
+        <button type="button" class="pill" aria-pressed="false" data-f="dima">Діма</button>
+      </div>
+    </div>
+    <div class="work">
+      <article class="card feat" data-who="dima">
+        <div class="stage"><canvas class="gl" data-scene="graph" role="img" aria-label="Тривимірний граф звʼязків між новинами"></canvas></div>
+        <div class="txt">
+          <span class="tag">Діма · AI · 6 місце AI-Skills</span>
+          <h3>News Intelligence Hub</h3>
+          <p class="muted">Збирає IT-новини з RSS, робить короткі витяги через AI і показує звʼязки між новинами на графі знань.</p>
+          <div class="wrapc"><span class="pill sm">React</span><span class="pill sm">NestJS</span><span class="pill sm">PostgreSQL</span><span class="pill sm">BullMQ</span><span class="pill sm">Flutter</span></div>
+          <a href="#news" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--coral-l);min-height:44px">Відкрити живе демо <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+      <article class="card wcard" data-who="me"><div class="ph">[скрін роботи]</div><div class="txt"><span class="tag">[ваша · сайт]</span><h3>[Назва проєкту]</h3><p class="muted" style="font-size:15px">[Що за проєкт і що саме робили.]</p></div></article>
+      <article class="card wcard" data-who="me"><div class="ph">[скрін роботи]</div><div class="txt"><span class="tag">[ваша · дизайн]</span><h3>[Назва проєкту]</h3><p class="muted" style="font-size:15px">[Що за проєкт і що саме робили.]</p></div></article>
+      <article class="card wcard" data-who="dima"><div class="ph">[скрін роботи]</div><div class="txt"><span class="tag">[Діма · бот]</span><h3>[Назва проєкту]</h3><p class="muted" style="font-size:15px">[Що за проєкт і що саме робили.]</p></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec deco-wrap" id="ready">
+  <img class="deco deco-l" src="assets/frame.png" alt="" loading="lazy">
+  <div class="in">
+    <div class="sec-head">
+      <div><span class="eyebrow">03 // готові роботи</span><h2 class="h2">забирайте як є або переробимо під вас</h2></div>
+      <p class="muted">Готові шаблони сайтів і дизайну. Міняємо кольори, лого, тексти і структуру під ваш бренд.</p>
+    </div>
+    <div class="ready">
+      <article class="card"><div class="ph">[превʼю шаблону]</div><div class="txt"><h3>[Назва шаблону]</h3><p class="muted" style="font-size:15px">[Для кого і що всередині.]</p><div class="two-price"><span>як є <b>[ціна]</b></span><span>під вас <b class="c">[ціна]</b></span></div></div></article>
+      <article class="card"><div class="ph">[превʼю шаблону]</div><div class="txt"><h3>[Назва шаблону]</h3><p class="muted" style="font-size:15px">[Для кого і що всередині.]</p><div class="two-price"><span>як є <b>[ціна]</b></span><span>під вас <b class="c">[ціна]</b></span></div></div></article>
+      <article class="card"><div class="ph">[превʼю шаблону]</div><div class="txt"><h3>[Назва шаблону]</h3><p class="muted" style="font-size:15px">[Для кого і що всередині.]</p><div class="two-price"><span>як є <b>[ціна]</b></span><span>під вас <b class="c">[ціна]</b></span></div></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec deco-wrap" id="prices">
+  <img class="deco deco-r low" src="assets/cube.png" alt="" loading="lazy">
+  <div class="in prices">
+    <div style="display:grid;gap:16px;align-content:start">
+      <span class="eyebrow">04 // ціни</span>
+      <h2 class="h2">прозорі ціни без сюрпризів</h2>
+      <p class="muted">Рахуємо за годинами: <b style="color:var(--ink)">$10–15 за годину</b>. Хостинг і домен оплачуєте окремо, напряму провайдеру — ми допоможемо все налаштувати.</p>
+      <a class="btn hot" href="#estimate" data-bot="estimate" style="justify-self:start;margin-top:8px">Порахувати свій проєкт</a>
+    </div>
+    <div>
+      <div class="prow"><span class="n">Лендінг</span><span class="d muted">Одна сторінка, форма заявки, адаптив</span><span class="t">1–2 тиж.</span><span class="p">від $200</span></div>
+      <div class="prow"><span class="n">Сайт на кілька сторінок</span><span class="d muted">До 10 сторінок, адмін-панель</span><span class="t">2–4 тиж.</span><span class="p">від $400</span></div>
+      <div class="prow"><span class="n">Інтернет-магазин</span><span class="d muted">Каталог, кошик, оплата, Нова Пошта</span><span class="t">4–8 тиж.</span><span class="p">від $1 000</span></div>
+      <div class="prow"><span class="n">CRM-система</span><span class="d muted">Клієнти, угоди, задачі, ролі</span><span class="t">6–12 тиж.</span><span class="p">від $1 200</span></div>
+      <div class="prow"><span class="n">Telegram-бот</span><span class="d muted">FAQ, запис, магазин у боті</span><span class="t">1–4 тиж.</span><span class="p">від $150</span></div>
+      <div class="prow"><span class="n">Лого і фірмовий стиль</span><span class="d muted">2–4 варіанти, кольори, шрифти</span><span class="t">3–7 днів</span><span class="p">від $80</span></div>
+      <p class="muted" style="font-size:13px;margin-top:14px">[Ціни-орієнтири — замініть своїми.] Точну суму бот порахує за 1–2 хвилини.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="estimate">
+  <div class="in est-wrap">
+    <div class="est-intro">
+      <span class="eyebrow">05 // оцінка проєкту</span>
+      <h2 class="h2">скільки коштуватиме ваш проєкт?</h2>
+      <p class="muted">Наш бот-помічник поставить кілька питань і порахує попередню вартість і терміни. Або просто спитайте його про ціни, оплату, хостинг чи терміни.</p>
+      <ol class="steps">
+        <li>Обираєте тип проєкту або пишете своїми словами.</li>
+        <li>Відповідаєте на 4–8 коротких питань кнопками.</li>
+        <li>Отримуєте розбивку робіт, ціну і терміни.</li>
+        <li>Надсилаєте заявку — ми пишемо з точною ціною і ТЗ.</li>
+      </ol>
+      <img class="est-deco" src="assets/pixels.png" alt="" loading="lazy">
+    </div>
+    <div class="chat" aria-label="Чат з ботом-помічником">
+      <div class="chat-head">
+        <img src="assets/logo-duo.png" alt="" width="40" height="40">
+        <div><h3>Pixel · помічник</h3><p>Бот відповідає одразу, людина — протягом дня</p></div>
+        <span class="status"><i></i><span>Онлайн</span></span>
+      </div>
+      <div class="log" id="botLog" aria-live="polite"></div>
+      <form class="composer" id="botForm">
+        <label for="botInput" class="sr">Ваше повідомлення</label>
+        <textarea id="botInput" rows="1" placeholder="Напишіть питання або «хочу сайт для салону краси»…"></textarea>
+        <button class="send" type="submit" aria-label="Надіслати"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+      </form>
+      <p class="fine">Enter — надіслати, Shift+Enter — новий рядок. Оцінка попередня: хостинг і домен оплачує клієнт.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="news">
+  <div class="in ns">
+    <article class="card news">
+      <canvas class="gl" data-scene="graph2" role="img" aria-label="Мережа новин, що обертається"></canvas>
+      <div class="txt">
+        <span class="eyebrow">06 // live demo</span>
+        <h2 class="h2" style="font-size:clamp(26px,3.2vw,42px)">IT-новини, які звʼязані між собою</h2>
+        <p class="muted" style="max-width:52ch">Відкрийте нашу робочу програму: свіжі новини, короткі витяги і карта, де видно, як одна новина перетікає в іншу.</p>
+        <a class="btn light" href="#news" style="justify-self:start">Відкрити новини</a>
+      </div>
+    </article>
+    <article class="card stack">
+      <span class="eyebrow">07 // стек і сервери</span>
+      <h3 style="font-size:24px;font-weight:700">на чому працюємо</h3>
+      <div class="wrapc"><span class="pill sm">React</span><span class="pill sm">TypeScript</span><span class="pill sm">NestJS</span><span class="pill sm">PostgreSQL</span><span class="pill sm">Redis</span><span class="pill sm">Docker</span><span class="pill sm">Flutter</span><span class="pill sm">Tailwind</span><span class="pill sm">Claude API</span></div>
+      <p class="muted" style="font-size:15px">Сервери: <span style="color:var(--ink)">[ваш хостинг / VPS]</span></p>
+    </article>
+  </div>
+</section>
+
+<section class="contact" id="contacts">
+  <canvas class="gl" data-scene="field" role="img" aria-label="Хвиля з кольорових кубиків"></canvas>
+  <div class="shade"></div>
+  <div class="in">
+    <div style="display:grid;gap:20px"><span class="eyebrow">контакти</span><h2>зробимо ваш проєкт разом?</h2></div>
+    <div class="clist">
+      <span>Telegram: <b>[@ВАШ_НІК]</b></span>
+      <span>Email: <b>[ВАШ EMAIL]</b></span>
+      <span>GitHub: <b>github.com/pixel-hata</b></span>
+      <a class="btn hot" href="#estimate" data-bot="estimate" style="justify-self:start;margin-top:12px">Оцінити проєкт</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="in"><span>© 2026 Pixel Hub</span><a href="admin.html" class="muted">Заявки (для команди)</a><span>Макет сайту</span></div></footer>
+
+<a class="bot-fab" href="#estimate" aria-label="Відкрити чат з помічником"><img src="assets/logo-duo.png" alt="" width="34" height="34"><span>Питання? Порахувати ціну</span></a>
+
+<script src="vendor/three.min.js"></script>
+<script src="js/site.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/bot-data.js"></script>
+<script src="js/leads.js"></script>
+<script src="js/bot.js"></script>
+</body>
+</html>
