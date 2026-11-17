@@ -124,24 +124,47 @@ window.PHLearn = (function () {
     if (kt.length < 5 || kt.includes(" ")) return 0;
     return words.some(w => w.length >= kt.length - 1 && lev(w.slice(0, kt.length), kt) <= 1) ? kt.length - 1 : 0;
   }
-  /* точні збіги рахуються повністю; одруківки — тільки для слів, які ще не збіглися точно */
+  /* Як бот оцінює збіг фрази з темою:
+     1) фраза є в тексті дослівно — повні бали;
+     2) кожне слово фрази є в тексті в будь-якій формі (основа слова: «запис онлайн» ≈ «записувались онлайн») — майже повні бали;
+     3) довге слово з однією одруківкою — менше балів. */
+  const stem = w => w.length >= 8 ? w.slice(0, w.length - 2) : w.length >= 5 ? w.slice(0, w.length - 1) : w;
+  const wordHit = (kw, words) => kw.length <= 2 ? words.indexOf(kw) : words.findIndex(w => w.startsWith(stem(kw)));
   function faqScore(t, words, f) {
     let s = 0; const used = new Set();
-    f.keys.forEach(key => { const k = key.toLowerCase(); if (t.includes(k)) { s += k.trim().length; words.forEach((w, i) => { if ((" " + w + " ").includes(k.trim()) || w.startsWith(k.trim())) used.add(i); }); } });
+    f.keys.forEach(key => {
+      const k = key.toLowerCase(), kt = k.trim();
+      if (!kt) return;
+      if (t.includes(k)) { s += kt.length; words.forEach((w, i) => { if (kt.split(" ").some(x => w.startsWith(stem(x)))) used.add(i); }); return; }
+      const kws = kt.split(" ").filter(Boolean);
+      const idx = kws.map(x => wordHit(x, words));
+      if (idx.every(i => i >= 0) && !(kws.length === 1 && kt.length < 5)) { s += kt.length - 1; idx.forEach(i => used.add(i)); return; }
+    });
     f.keys.forEach(key => {
       const kt = key.toLowerCase().trim();
-      if (kt.length < 7 || kt.includes(" ") || t.includes(key.toLowerCase())) return;
+      if (kt.length < 7 || kt.includes(" ")) return;
+      if (words.some((w, j) => used.has(j) && w.startsWith(stem(kt)))) return;
       const i = words.findIndex((w, j) => !used.has(j) && w.length >= kt.length - 1 && lev(w.slice(0, kt.length), kt) <= 1);
-      if (i >= 0) { used.add(i); s += kt.length - 1; }
+      if (i >= 0) { used.add(i); s += kt.length - 2; }
     });
     return s;
   }
   function match(text) {
     const t = pad(text), words = t.trim().split(" "); let best = null, score = 0;
-    faqs().forEach(f => { const s = faqScore(t, words, f); if (s > score) { score = s; best = f; } });
+    // привітання/подяка/офтоп програють, якщо в повідомленні є справжнє питання
+    const LOW = ["hello", "thanks", "bye", "offtopic"];
+    const scored = faqs().map(f => [f, faqScore(t, words, f)]).filter(x => x[1] > 0);
+    const real = scored.some(x => !LOW.includes(x[0].id));
+    // словник перемагає лише коли людина питає «що таке / навіщо / поясніть»
+    const asksWhat = /(що таке|що це|що значить|що означає|навіщо|нащо|для чого|поясн|не розумію|что такое|что это|что значит|что означает|зачем|для чего|объясн|не понимаю|what is| це що| это что|це що)/.test(t);
+    scored.forEach(([f, sc]) => {
+      let v = real && LOW.includes(f.id) ? sc / 4 : sc;
+      if (f.glossary && !asksWhat) v = v / 3;
+      if (v > score) { score = v; best = f; }
+    });
     return best;
   }
-  const LABELS = { hello: "Привітання", prices: "Ціни", rate: "Ставка", included: "Що входить у ціну", cheaper: "Як зробити дешевше", timing: "Терміни", urgent: "Терміново", process: "Як ми працюємо", payment: "Оплата", installments: "Оплата частинами", contract: "Договір і NDA", hosting: "Хостинг і домен", ownership: "Кому належить код", support: "Підтримка", warranty: "Гарантія", edits: "Правки", portfolio: "Портфоліо", ready: "Готові роботи", team: "Хто ви", stack: "Технології", cms: "WordPress / Tilda", admin: "Адмін-панель", mobile: "Мобільна версія", app: "Мобільний застосунок", seo: "SEO", content: "Тексти і фото", languages: "Мови", integrations: "Інтеграції", ai: "AI", redesign: "Редизайн", security: "Безпека", meeting: "Дзвінок", schedule: "Графік роботи", where: "Де ви працюєте", contacts: "Контакти", news: "IT-новини", bot: "Ти бот?", thanks: "Дякую", bye: "Прощання", niche: "Ваша сфера бізнесу", start: "Коли почнете", need_from_client: "Що потрібно від клієнта", have_tz: "Є готове ТЗ", no_tz: "Немає ТЗ", uah: "Гривні і курс", company: "Документи для ТОВ/ФОП", refund: "Повернення коштів", late: "Затримка термінів", training: "Навчання", grow: "Розширення потім", speed: "Швидкість сайту", analytics: "Аналітика", marketplaces: "Prom / Rozetka / Instagram", ready_crm: "Готова CRM чи своя", mail: "Пошта на домені", widgets: "Карта, чат, месенджери", pwa: "PWA / десктоп", games: "Ігри", crypto: "Крипто", jobs: "Вакансії", partner: "Співпраця", charity: "Волонтерам і студентам", rights: "Авторські права", stock: "Фотобанки", migration: "Перенос сайту", domain_pick: "Вибір домену", a11y: "Доступність", progress: "Як слідкувати за роботою", copy_site: "Як у іншому сайті", reviews: "Відгуки", refuse: "Незаконні задачі", offtopic: "Не по темі" };
+  const LABELS = { hello: "Привітання", prices: "Ціни", rate: "Ставка", included: "Що входить у ціну", cheaper: "Як зробити дешевше", timing: "Терміни", urgent: "Терміново", process: "Як ми працюємо", payment: "Оплата", installments: "Оплата частинами", contract: "Договір і NDA", hosting: "Хостинг і домен", ownership: "Кому належить код", support: "Підтримка", warranty: "Гарантія", edits: "Правки", portfolio: "Портфоліо", ready: "Готові роботи", team: "Хто ви", stack: "Технології", cms: "WordPress / Tilda", admin: "Адмін-панель", mobile: "Мобільна версія", app: "Мобільний застосунок", seo: "SEO", content: "Тексти і фото", languages: "Мови", integrations: "Інтеграції", ai: "AI", redesign: "Редизайн", security: "Безпека", meeting: "Дзвінок", schedule: "Графік роботи", where: "Де ви працюєте", contacts: "Контакти", news: "IT-новини", bot: "Ти бот?", thanks: "Дякую", bye: "Прощання", niche: "Ваша сфера бізнесу", start: "Коли почнете", need_from_client: "Що потрібно від клієнта", have_tz: "Є готове ТЗ", no_tz: "Немає ТЗ", uah: "Гривні і курс", company: "Документи для ТОВ/ФОП", refund: "Повернення коштів", late: "Затримка термінів", training: "Навчання", grow: "Розширення потім", speed: "Швидкість сайту", analytics: "Аналітика", marketplaces: "Prom / Rozetka / Instagram", ready_crm: "Готова CRM чи своя", mail: "Пошта на домені", widgets: "Карта, чат, месенджери", pwa: "PWA / десктоп", games: "Ігри", crypto: "Крипто", jobs: "Вакансії", partner: "Співпраця", charity: "Волонтерам і студентам", rights: "Авторські права", stock: "Фотобанки", migration: "Перенос сайту", domain_pick: "Вибір домену", a11y: "Доступність", progress: "Як слідкувати за роботою", copy_site: "Як у іншому сайті", reviews: "Відгуки", logo_files: "Файли лого", logo_variants: "Скільки варіантів лого", logo_process: "Як ми робимо лого", brandbook: "Брендбук і фірмовий стиль", rebrand: "Оновлення старого лого", print: "Друк, упаковка, вивіска", mobile_adapt: "Адаптація під телефон", figma_to_code: "Верстка з макета", redesign_seo: "SEO при редизайні", keep_content: "Перенесення контенту", design_style: "Стиль дизайну", lms: "Онлайн-школа", food_delivery: "Доставка їжі", clinic: "Сайт клініки", photographer: "Портфоліо фотографа", event: "Сайт події", corporate: "Корпоративний сайт", crm_auto: "CRM для автосервісу", crm_salon: "CRM для салону", crm_realestate: "CRM для нерухомості", crm_logistics: "CRM для доставки", prro: "Каса і чеки (ПРРО)", telephony: "IP-телефонія", crm_migration: "Перенесення даних у CRM", crm_no_fee: "CRM без абонплати", online_booking: "Онлайн-запис", before_after: "Фото «до і після»", qr_menu: "QR-меню", crm_roles: "Ролі і права в CRM", crm_history: "Журнал дій у CRM", sync_stock: "Синхронізація залишків", nova_poshta: "Нова Пошта", payment_fees: "Комісії платіжних систем", security_audit: "Аудит безпеки", environments: "Середовища і CI/CD", logo_ai: "Лого і нейромережі", logo_unique: "Унікальність лого", reviews_feature: "Відгуки на вашому сайті", have_logo: "У мене вже є лого", newbie: "Я нічого не розумію", refuse: "Незаконні задачі", offtopic: "Не по темі" };
   const title = f => (f && (LABELS[f.id] || f.title)) || (f ? String(f.text).slice(0, 40) + "…" : "");
 
   return { faqs, match, title, unknown, logUnknown, logWrong, suggest, dropUnknown, addKeys, addCustom, updateCustom, removeCustom, removeKey, ignore, learned, exportJson, importJson, normKey };
