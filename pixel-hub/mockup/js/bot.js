@@ -105,21 +105,37 @@
   }
   const TYPE_KEYS = {
     landing: ["лендінг", "лендинг", "landing", "односторінк", "одностраничн", "посадков"],
-    site: ["сайт-візитк", "сайт визитк", "візитк", "визитк", "корпоратив", "сайт компан", "багатосторін", "многостранич", "сайт для", "сайт"],
+    site: ["власний сайт", "свій сайт", "свой сайт", "хочу сайт", "сайт-візитк", "сайт визитк", "візитк", "визитк", "корпоратив", "сайт компан", "багатосторін", "многостранич", "сайт для", "сайт"],
     shop: ["магазин", "shop", "товар", "e-commerce", "ecommerce", "продаж онлайн"],
     crm: ["crm", "срм", "црм", "облік", "учет", "систему для", "система для", "erp"],
-    bot: ["бот", "bot"],
+    bot: [" бот ", " бота", "телеграм-бот", "telegram-бот", "telegram бот", "телеграм бот", " bot "],
     webapp: ["сервіс", "сервис", "платформ", "веб-застосун", "веб-прилож", "saas", "кабінет", "кабинет", "маркетплейс"],
-    design: ["дизайн", "макет", "figma", "фігма", "ui", "ux"],
+    design: ["тільки дизайн", "только дизайн", "дизайн макет", "макет", "figma", "фігма", " ui ", " ux "],
     brand: ["лого", "logo", "брендбук", "фірмов", "фирмен", "айдентик"],
     ai: [" ai ", "ші ", "нейро", "gpt", "штучн", "искусствен"],
     redesign: ["редизайн", "переробит", "переделат", "доробит", "доделат", "старий сайт", "старый сайт"]
   };
   const ORDER = ["redesign", "crm", "shop", "landing", "bot", "webapp", "brand", "ai", "design", "site"];
   function detectType(text) {
-    const t = norm(text);
-    for (const id of ORDER) if (TYPE_KEYS[id].some(k => t.includes(k))) return id;
-    return null;
+    const t = norm(text); let best = null, score = 0;
+    ORDER.forEach(id => {
+      let sc = 0;
+      TYPE_KEYS[id].forEach(k => { const n = t.split(k).length - 1; if (n) sc += n * k.trim().length; });
+      if (sc > score) { score = sc; best = id; }
+    });
+    return best;
+  }
+  /* читання довгого опису: які відповіді вже зрозумілі */
+  function analyze(type, text) {
+    const t = norm(text), pre = {};
+    type.questions.forEach(q => {
+      if (!q.options) return;
+      const hits = q.options.map((o, i) => [i, (o.kw || []).filter(k => t.includes(k.toLowerCase())).length]).filter(x => x[1] > 0);
+      if (!hits.length) return;
+      if (q.multi) pre[q.id] = hits.map(x => x[0]);
+      else pre[q.id] = [hits.sort((a, b) => b[1] - a[1])[0][0]];
+    });
+    return pre;
   }
   const WANT = ["хочу", "потрібен", "потрібна", "потрібно", "потрібне", "треба", "нужен", "нужна", "нужно", "зробіть", "зробити", "сделайте", "сделать", "розробити", "разработать", "замовити", "заказать", "need", "want", "порахуй", "порахув", "посчита", "оцін", "оцен", "скільки коштує", "сколько стоит"];
   const wantsBuild = text => { const t = norm(text); return WANT.some(w => t.includes(w)); };
@@ -129,19 +145,20 @@
     human: ["людин", "оператор", "менеджер", "живий", "живой", "human", "консультант"],
     estimate: ["порахуй", "порахув", "посчита", "оцінк", "оценк", "калькул", "розрахув", "рассчит"]
   };
-  const isCmd = (text, k) => { const t = norm(text); return CMD[k].some(w => t.includes(w)); };
+  const isShort = text => norm(text).trim().split(" ").length <= 5;
+  const isCmd = (text, k) => { if (!isShort(text)) return false; const t = norm(text); return CMD[k].some(w => t.includes(w)); };
 
   /* ---------- actions ---------- */
   function run(action, extra) {
     if (action === "menu") return showMenu();
     if (action === "estimate") return chooseType();
     if (action === "human") return humanForm();
-    if (action.startsWith("type:")) return startEstimate(action.slice(5), extra);
+    if (action.startsWith("type:")) return startEstimate(action.slice(5), extra || st.description || "");
     if (action.startsWith("faq:")) return answerFaq(faqById(action.slice(4)));
     if (action === "wrong") return markWrong();
     if (action === "send") return contactForm();
     if (action === "mvp") return showMvp();
-    if (action === "redo") return startEstimate(st.typeId);
+    if (action === "redo") { const d = st.description; st.description = ""; startEstimate(st.typeId, ""); st.description = d; return; }
     if (action === "copy") return copyEstimate();
     if (action === "tz") return showTz();
   }
@@ -161,24 +178,42 @@
     say(D.FALLBACK[fbN++ % D.FALLBACK.length] + (text ? "\n\nЯ записав ваше питання — команда навчить мене на нього відповідати." : ""), D.MENU.concat([]));
   }
   function chooseType() {
-    st = { mode: "pick" };
+    st = { mode: "pick", description: "" };
     say("Що будемо робити? Оберіть тип проєкту:", D.TYPES.map(t => ({ label: t.label, action: "type:" + t.id })));
   }
 
   /* ---------- estimate flow ---------- */
   function startEstimate(typeId, description) {
     const type = D.TYPES.find(t => t.id === typeId); if (!type) return chooseType();
-    st = { mode: "estimate", typeId, type, qi: 0, answers: [], description: description || st.description || "" };
-    say("**" + type.label + "** — чудово. Кілька коротких питань, і я порахую попередню вартість. Можна відповідати кнопками або словами; «назад» — повернутись до попереднього питання.");
+    const desc = description || st.description || "";
+    st = { mode: "estimate", typeId, type, qi: 0, answers: [], description: desc, pre: desc ? analyze(type, desc) : {}, autoSaid: false, auto: [] };
+    if (Object.keys(st.pre).length) {
+      const got = [];
+      type.questions.forEach(q => { (st.pre[q.id] || []).forEach(i => { const o = q.options[i]; if (o && !o.none) got.push(fill(o.tz || o.label)); }); });
+      st.autoSaid = true;
+      say("**" + type.label + "** — дякую за детальний опис! З нього я вже зрозумів:\n" + got.map(g => "• " + g).join("\n") + "\n\nСпитаю лише про те, чого бракує. Якщо щось не так — у кінці натисніть «Змінити відповіді».");
+    }
+    else say("**" + type.label + "** — чудово. Кілька коротких питань, і я порахую попередню вартість. Можна відповідати кнопками або словами; «назад» — повернутись до попереднього питання.");
     askQuestion();
   }
   function curQ() { return st.type.questions[st.qi]; }
   function askQuestion() {
-    const q = curQ();
+    let q = curQ();
+    // питання з однією відповіддю, яку вже видно з опису, — відповідаємо самі
+    while (q && !q.multi && !q.free && st.pre && st.pre[q.id] && !st.answers[st.qi]) {
+      const idx = st.pre[q.id];
+      st.auto.push(q.options[idx[0]].label);
+      recordAnswer(q, idx); st.qi++; q = curQ();
+    }
+    if (st.auto.length && !st.autoSaid) {
+      st.autoSaid = true;
+      say("З вашого опису я вже зрозумів:\n" + st.auto.map(a => "• " + a).join("\n") + "\n\nЯкщо щось не так — у кінці натисніть «Змінити відповіді».");
+    }
     if (!q) return finishEstimate();
     const num = "Питання " + (st.qi + 1) + " з " + st.type.questions.length + ". ";
     if (q.free) { say(num + q.text); return; }
-    say(num + q.text + (q.hint ? "\n\n" + q.hint : ""));
+    const preMulti = q.multi && st.pre && st.pre[q.id] && st.pre[q.id].length;
+    say(num + q.text + (q.hint ? "\n\n" + q.hint : "") + (preMulti ? "\n\nЯ вже відмітив те, що побачив у вашому описі. Перевірте, додайте потрібне і натисніть «Готово»." : ""));
     after(() => renderOptions(q));
   }
   function renderOptions(q) {
@@ -190,9 +225,9 @@
         w.append(b);
       });
     } else {
-      const picked = new Set();
+      const picked = new Set((st.pre && st.pre[q.id]) || []);
       q.options.forEach((o, i) => {
-        const b = el("button", "chip toggle", o.label); b.type = "button"; b.setAttribute("aria-pressed", "false");
+        const b = el("button", "chip toggle", o.label); b.type = "button"; b.setAttribute("aria-pressed", String(picked.has(i)));
         b.addEventListener("click", () => {
           if (o.none) { picked.clear(); w.querySelectorAll(".toggle").forEach(x => x.setAttribute("aria-pressed", "false")); picked.add(i); b.setAttribute("aria-pressed", "true"); return; }
           const noneIdx = q.options.findIndex(x => x.none);
@@ -212,10 +247,12 @@
     if (st.qi > 0) { const bk = el("button", "chip ghost", "← Назад"); bk.type = "button"; bk.addEventListener("click", () => { clearButtons(); userMsg("Назад"); goBack(); }); w.append(bk); }
     log.append(w);
   }
-  function answer(idx) {
-    const q = curQ();
+  function recordAnswer(q, idx) {
     const chosen = idx.map(i => q.options[i]).filter(Boolean);
     st.answers[st.qi] = { qid: q.id, question: fill(q.text), labels: chosen.map(o => o.label), options: chosen, tz: chosen.filter(o => !o.none).map(o => o.tz || o.label) };
+  }
+  function answer(idx) {
+    recordAnswer(curQ(), idx);
     st.qi++;
     askQuestion();
   }
@@ -227,7 +264,7 @@
     askQuestion();
   }
   function goBack() {
-    if (st.qi > 0) { st.qi--; st.answers.length = st.qi; askQuestion(); }
+    if (st.qi > 0) { st.qi--; st.answers.length = st.qi; const q = curQ(); if (q && st.pre) delete st.pre[q.id]; askQuestion(); }
     else chooseType();
   }
   /* parse "До 5", "6–10", "Понад 20", "13 і більше" */
@@ -291,7 +328,7 @@
     if (core.priceMax < e.priceMax) e.mvp = { priceMin: core.priceMin, priceMax: core.priceMax, items: core.items };
     st.estimate = e;
     st.title = type.title;
-    say("Готово! Орієнтовна вартість: **" + money(e.priceMin) + " – " + money(e.priceMax) + "**, термін " + e.weeks + ". Деталі нижче.");
+    say("Готово! Орієнтовна вартість: **" + money(e.priceMin) + " – " + money(e.priceMax) + "**, термін " + e.weeks.replace(/\.$/, "") + ". Деталі нижче.");
     after(() => estimateCard(e));
     say("Що далі?", [
       { label: "Надіслати заявку", action: "send" },
@@ -443,6 +480,12 @@
     }
     if (isCmd(text, "human")) return humanForm();
     const type = detectType(text);
+    if (text.length > 160) {
+      if (type) { say("Зрозумів, вам потрібно: **" + D.TYPES.find(t => t.id === type).label + "**."); return startEstimate(type, text); }
+      st.description = text;
+      say("Дякую за опис! Щоб порахувати, оберіть, що з цього найближче:", D.TYPES.map(t => ({ label: t.label, action: "type:" + t.id })));
+      st.mode = "pick"; return;
+    }
     const f = matchFaq(text);
     if (type && (wantsBuild(text) || text.length > 50 || !f)) {
       say("Зрозумів, вам потрібно: **" + D.TYPES.find(t => t.id === type).label + "**.");
