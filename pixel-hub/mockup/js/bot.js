@@ -279,6 +279,14 @@
   }
   function matchOption(q, text) {
     const t = norm(text);
+    if (q.multi) {
+      const noneIdx = q.options.findIndex(o => o.none);
+      // «все», «усе», «хочу все», «все перелічене» → обрати всі варіанти
+      if (/ (все|усе|всё|всі|усі|всех|всего|all|everything|кожне|кожен|повний пакет|максимум|по максимуму|все підряд|все одразу) /.test(t) && !/ (не все|не усе|не всё|все одно|всё равно) /.test(t))
+        return q.options.map((o, i) => o.none ? -1 : i).filter(i => i >= 0);
+      // «нічого», «не треба» → «Нічого з цього»
+      if (noneIdx >= 0 && / (нічого|ничего|не треба|не нужно|не потрібно|не надо|без цього|без этого|nothing|none|ні одного|жодного) /.test(t)) return [noneIdx];
+    }
     const n = t.match(/\d+/);
     if (n) { const v = +n[0]; const i = q.options.findIndex(o => { const r = rangeOf(o.label); return r && v >= r[0] && v <= r[1]; }); if (i >= 0) return [i]; }
     const scores = q.options.map(o => {
@@ -473,7 +481,8 @@
         const f = matchFaq(text);
         if (f && f.id !== "hello" && f.id !== "thanks") { answerFaqInline(f); return; }
         if (LEARN) LEARN.logUnknown(text, "оцінка: " + q.text);
-        say("Не зрозумів відповідь. Оберіть варіант кнопкою нижче, напишіть «назад» або «меню».");
+        say(q.multi ? "Не зрозумів відповідь. Натисніть потрібні варіанти і «Готово» — або напишіть словами: «все», «нічого», «фільтри і відгуки». Можна також «назад» або «меню»."
+                    : "Не зрозумів відповідь. Оберіть варіант кнопкою нижче, напишіть «назад» або «меню».");
         after(() => { clearButtons(); renderOptions(q); });
         return;
       }

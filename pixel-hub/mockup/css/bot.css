@@ -59,3 +59,6 @@ footer .in a{min-height:24px}
 
 /* items in the chat log never shrink (estimate card was collapsing to 2px) */
 .log > *{flex-shrink:0}
+
+/* the floating button must really hide while the chat is on screen */
+.bot-fab[hidden]{display:none!important}
