@@ -1,0 +1,16 @@
+{
+  "name": "pixel-hata-site-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pixel Hata: serves the site and forwards bot leads to Telegram and email",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

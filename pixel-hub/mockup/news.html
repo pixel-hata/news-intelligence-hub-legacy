@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>IT-новини — Pixel Hata</title>
+<meta name="description" content="News Intelligence Hub від Pixel Hata: свіжі IT-новини, короткі AI-витяги і карта звʼязків між темами.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/bot.css">
+<style>
+.news-hero{position:relative;overflow:hidden;min-height:min(640px,82dvh);display:grid;align-items:end;background:#05060A}
+.news-hero canvas.gl{position:absolute;inset:0}
+.news-hero .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,11,18,.95),rgba(10,11,18,.35) 55%,rgba(10,11,18,.1));pointer-events:none}
+.news-hero .in{position:relative;z-index:2;display:grid;gap:20px;padding-block:72px}
+.news-hero h1{font-size:clamp(36px,5vw,72px);line-height:1.02;letter-spacing:-.04em;font-weight:700;max-width:14ch}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px}
+.how .card{padding:24px;display:grid;gap:10px;align-content:start}
+.how h3{font-size:18px;font-weight:600}
+.step{font:700 13px var(--f-display);color:var(--coral-l)}
+.clusters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px}
+@media (max-width:860px){.clusters{grid-template-columns:1fr}}
+.cl-list{display:flex;flex-wrap:wrap;gap:8px;align-content:start}
+.cl-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--ink);font:600 14px var(--f-body);cursor:pointer}
+.cl-btn i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.cl-btn[aria-pressed="true"]{background:var(--surface2);border-color:var(--ink)}
+.cl-panel{padding:24px;display:grid;gap:14px}
+.cl-panel h3{font-size:20px;font-weight:600}
+.cl-items{display:grid;gap:10px}
+.cl-item{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.cl-item .dot{width:10px;height:10px;border-radius:3px;margin-top:6px}
+.cl-item b{display:block;font-size:15px}
+.cl-item span{font-size:14px;color:var(--muted)}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.links em{font-style:normal;font-size:12px;color:var(--dim);border:1px dashed var(--line2);border-radius:999px;padding:2px 10px}
+.example{font-size:12px;color:var(--coral-l);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="in">
+    <a class="brand" href="index.html" aria-label="Pixel Hata, на головну"><img src="assets/logo-duo.png" alt="" width="40" height="40"><span>pixel<b>hata</b></span></a>
+    <nav class="links" aria-label="Розділи">
+      <a href="index.html#about">Про нас</a><a href="index.html#work">Портфоліо</a><a href="index.html#ready">Готові роботи</a><a href="index.html#prices">Ціни</a><a href="news.html" aria-current="page" style="color:var(--ink)">IT-новини</a><a href="index.html#contacts">Контакти</a>
+    </nav>
+    <a class="btn hot" href="index.html#estimate" style="min-height:42px;padding:0 18px;font-size:14px">Оцінити проєкт</a>
+  </div>
+</header>
+
+<main>
+<section class="news-hero">
+  <canvas class="gl" data-scene="graph2" role="img" aria-label="Карта звʼязків між новинами, що обертається"></canvas>
+  <div class="shade"></div>
+  <div class="in">
+    <span class="eyebrow">News Intelligence Hub · наш живий проєкт</span>
+    <h1>IT-новини, звʼязані між собою</h1>
+    <p class="muted" style="font-size:18px;max-width:52ch">Збираємо новини з перевірених джерел, AI робить короткі витяги, а карта показує, як теми повʼязані. Читайте за 5 хвилин те, на що зазвичай іде година.</p>
+    <div class="cta-row">
+      <a class="btn hot" href="[посилання на News Hub]">Відкрити застосунок</a>
+      <a class="btn" href="index.html#work">Як ми це зробили</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="in">
+    <div class="sec-head"><div><span class="eyebrow">як це працює</span><h2 class="h2">три кроки до розуміння</h2></div></div>
+    <div class="how">
+      <article class="card"><span class="step">01</span><h3>Збираємо джерела</h3><p class="muted">Програма сама читає RSS-стрічки IT-видань кілька разів на день і прибирає дублікати.</p></article>
+      <article class="card"><span class="step">02</span><h3>AI робить витяг</h3><p class="muted">Для кожної статті — 2–3 речення суті, ключові компанії, люди й технології. Посилання на джерело завжди поруч.</p></article>
+      <article class="card"><span class="step">03</span><h3>Карта звʼязків</h3><p class="muted">Новини обʼєднуються в тематичні кластери. Натискаєте на тему — бачите всі повʼязані матеріали.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="clusters">
+  <div class="in">
+    <div class="sec-head">
+      <div><span class="eyebrow">тематичні кластери</span><h2 class="h2">оберіть тему</h2></div>
+      <p class="muted">Так виглядатимуть кластери в застосунку. Нижче — приклад структури; справжні новини підтягуються з джерел.</p>
+    </div>
+    <div class="clusters">
+      <div class="cl-list" role="group" aria-label="Теми" id="clList"></div>
+      <article class="card cl-panel" aria-live="polite">
+        <span class="example">приклад</span>
+        <h3 id="clTitle"></h3>
+        <p class="muted" id="clDesc"></p>
+        <div class="cl-items" id="clItems"></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="in" style="display:grid;gap:20px">
+    <div class="sec-head" style="margin-bottom:0"><div><span class="eyebrow">хочете таке для себе?</span><h2 class="h2">зробимо агрегатор під ваш бізнес</h2></div>
+      <p class="muted">Моніторинг конкурентів, новин галузі, цін або згадок бренду — з AI-витягами і щоденною розсилкою в Telegram.</p></div>
+    <div class="cta-row"><a class="btn hot" href="index.html#estimate">Порахувати вартість</a><a class="btn" href="index.html#contacts">Написати нам</a></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="in"><span>© 2026 Pixel Hata</span><a href="index.html" class="muted">На головну</a><span>Макет сайту</span></div></footer>
+
+<script src="vendor/three.min.js"></script>
+<script src="js/scenes.js"></script>
+<script>
+/* Тематичні кластери: структура-приклад. У застосунку дані приходять з API News Hub. */
+(function () {
+  const CL = [
+    { id: "ai", name: "AI і нейромережі", color: "#FF6A45", desc: "Нові моделі, інструменти і як бізнес їх використовує.",
+      items: [["[Заголовок новини про нову AI-модель]", "Короткий AI-витяг: що сталося і чому це важливо — 2–3 речення."], ["[Заголовок про AI-інструмент для бізнесу]", "Витяг: хто випустив, кому корисно, скільки коштує."], ["[Заголовок про регулювання AI]", "Витяг: які правила і для кого."]], links: ["компанії", "технології", "кластер: безпека"] },
+    { id: "sec", name: "Кібербезпека", color: "#7088FF", desc: "Вразливості, витоки даних і як захиститись.",
+      items: [["[Заголовок про вразливість]", "Витяг: що під загрозою і що оновити."], ["[Заголовок про витік даних]", "Витяг: хто постраждав, що робити користувачам."]], links: ["кластер: AI", "компанії"] },
+    { id: "dev", name: "Розробка", color: "#3BD1FF", desc: "Мови, фреймворки, релізи інструментів.",
+      items: [["[Заголовок про реліз фреймворку]", "Витяг: що нового і чи варто оновлюватись."], ["[Заголовок про мову програмування]", "Витяг: ключові зміни."]], links: ["технології", "кластер: хмари"] },
+    { id: "cloud", name: "Хмари і інфраструктура", color: "#FFB36B", desc: "Сервери, хмарні сервіси, ціни і збої.",
+      items: [["[Заголовок про хмарний сервіс]", "Витяг: що змінилось для клієнтів."], ["[Заголовок про збій сервісу]", "Витяг: що впало, на скільки, чому."]], links: ["кластер: розробка", "компанії"] },
+    { id: "startups", name: "Стартапи і ринок", color: "#B49BFF", desc: "Інвестиції, запуски продуктів, українські компанії.",
+      items: [["[Заголовок про інвестицію в стартап]", "Витяг: хто, скільки, на що."], ["[Заголовок про запуск продукту]", "Витяг: що за продукт і для кого."]], links: ["компанії", "кластер: AI"] }
+  ];
+  const list = document.getElementById("clList"), t = document.getElementById("clTitle"), d = document.getElementById("clDesc"), box = document.getElementById("clItems");
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  function show(c) {
+    list.querySelectorAll(".cl-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === c.id)));
+    t.textContent = c.name; d.textContent = c.desc;
+    box.replaceChildren(...c.items.map(([h, s]) => {
+      const it = el("div", "cl-item"), dot = el("i", "dot"); dot.style.background = c.color;
+      const body = el("div"); body.append(el("b", null, h), el("span", null, s));
+      const ln = el("div", "links"); c.links.forEach(l => ln.append(el("em", null, l))); body.append(ln);
+      it.append(dot, body); return it;
+    }));
+  }
+  CL.forEach(c => { const b = el("button", "cl-btn"); b.type = "button"; b.dataset.id = c.id; const i = el("i"); i.style.background = c.color; b.append(i, c.name); b.onclick = () => show(c); list.append(b); });
+  show(CL[0]);
+})();
+</script>
+</body>
+</html>

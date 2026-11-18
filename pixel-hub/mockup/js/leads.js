@@ -85,5 +85,18 @@ window.PHLeads = (function () {
     ].filter(Boolean).join("\n");
   }
 
-  return { list, save, remove, clear, buildTz, telegramText, fill, money };
+  /* Відправка команді: на справжньому сайті — у Telegram і на пошту через сервер (server/).
+     Відкритий як файл (file://) макет просто зберігає заявку в браузері. */
+  async function send(lead) {
+    if (!/^https?:$/.test(location.protocol)) return { ok: false, offline: true };
+    try {
+      const r = await fetch("api/lead", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead: { id: lead.id, kind: lead.kind, title: lead.title, contact: lead.contact, question: lead.question || "", estimate: lead.estimate ? { priceMin: lead.estimate.priceMin, priceMax: lead.estimate.priceMax, weeks: lead.estimate.weeks } : null, createdAt: lead.createdAt },
+          tz: lead.tz || "", message: telegramText(lead), website: "" }) });
+      const j = await r.json().catch(() => ({}));
+      return { ok: r.ok && j.ok !== false, channels: j.channels || [] };
+    } catch (e) { return { ok: false }; }
+  }
+
+  return { list, save, send, remove, clear, buildTz, telegramText, fill, money };
 })();
