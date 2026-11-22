@@ -125,10 +125,10 @@ details.pr th{color:var(--coral-l)}
 .two-price s{color:var(--dim);font-size:.85em;margin-left:4px}
 .person .ph:has(img){padding:0}
 /* Фото команди: компактний портрет 4:5 поруч із текстом, однакове тонування */
-.person:has(.ph img){grid-template-columns:clamp(150px,34%,220px) minmax(0,1fr);gap:4px;align-items:start;padding:24px 0 0 24px}
+.person:has(.ph img){grid-template-columns:clamp(170px,45%,260px) minmax(0,1fr);gap:4px;align-items:start;padding:24px 0 0 24px}
 .person:has(.ph img) .ph{position:relative;overflow:hidden;min-height:0;aspect-ratio:4/5;border-radius:18px;background:#0E0F18;box-shadow:0 0 0 1px var(--line)}
 .person .ph img{object-position:50% 25%;filter:saturate(.9) contrast(1.04)}
 .person:has(.ph img) .ph::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
   background:linear-gradient(160deg,rgba(91,108,255,.14),rgba(10,11,18,0) 40%,rgba(10,11,18,0) 65%,rgba(255,106,69,.16))}
 .person:has(.ph img) .txt{padding:4px 28px 28px 24px;align-content:start}
-@media (max-width:560px){.person:has(.ph img){grid-template-columns:1fr;padding:20px 20px 0}.person:has(.ph img) .ph{width:150px}.person:has(.ph img) .txt{padding:16px 0 24px}}
+@media (max-width:560px){.person:has(.ph img){grid-template-columns:1fr;padding:20px 20px 0}.person:has(.ph img) .ph{width:min(260px,100%)}.person:has(.ph img) .txt{padding:16px 0 24px}}
