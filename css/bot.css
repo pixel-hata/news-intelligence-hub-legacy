@@ -132,3 +132,4 @@ details.pr th{color:var(--coral-l)}
   background:linear-gradient(160deg,rgba(91,108,255,.14),rgba(10,11,18,0) 40%,rgba(10,11,18,0) 65%,rgba(255,106,69,.16))}
 .person:has(.ph img) .txt{padding:4px 28px 28px 24px;align-content:start}
 @media (max-width:560px){.person:has(.ph img){grid-template-columns:1fr;padding:20px 20px 0}.person:has(.ph img) .ph{width:min(260px,100%)}.person:has(.ph img) .txt{padding:16px 0 24px}}
+.ready .txt a.code{justify-self:start;font-weight:700;color:var(--coral-l);display:inline-flex;align-items:center;gap:6px;min-height:40px}

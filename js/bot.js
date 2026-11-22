@@ -405,15 +405,15 @@
         st.mode = "idle";
         LEADS.send(lead).then(r => {
           if (r.ok || r.offline) say("Дякую, " + v.name + "! Заявку надіслано. Ми напишемо вам протягом робочого дня.\n\nЯ вже склав попереднє ТЗ за вашими відповідями — можете глянути.", [{ label: "Показати попереднє ТЗ", action: "tz" }, { label: "Меню", action: "menu" }]);
-          else if (saved) say("Заявку збережено, але зараз не вдалося відправити її команді. Щоб не чекати, напишіть нам напряму: {telegram} або {email}.", [{ label: "Показати попереднє ТЗ", action: "tz" }, { label: "Меню", action: "menu" }]);
-          else say("Не вдалося надіслати заявку. Напишіть нам напряму: {telegram} або {email}.", "menu");
+          else if (saved) say("Заявку збережено, але зараз не вдалося відправити її команді. Щоб не чекати, напишіть нам напряму: Telegram {telegram} або Instagram {instagram}.", [{ label: "Показати попереднє ТЗ", action: "tz" }, { label: "Меню", action: "menu" }]);
+          else say("Не вдалося надіслати заявку. Напишіть нам напряму: Telegram {telegram} або Instagram {instagram}.", "menu");
         });
       }
     }));
   }
   function humanForm() {
     st.mode = "human";
-    say("Передам ваше питання [вашому імені] або Дмитру. Напишіть, що вас цікавить, і як з вами зв'язатися.");
+    say("Передам ваше питання Анастасії або Дмитру. Напишіть, що вас цікавить, і як з вами зв'язатися.");
     after(() => inlineForm({
       fields: [["name", "Ім'я", "name"], ["contact", "Telegram, телефон або email", "tel"], ["question", "Ваше питання", "", false, true]],
       submit: "Надіслати",
@@ -424,7 +424,7 @@
         st.mode = "idle";
         LEADS.send(lead).then(r => {
           if (r.ok || r.offline) say("Дякую! Питання передано команді, вам відповідять протягом робочого дня ({workHours}).", "menu");
-          else say("Питання збережено, але зараз не вдалося відправити його команді. Напишіть нам напряму: {telegram} або {email}.", "menu");
+          else say("Питання збережено, але зараз не вдалося відправити його команді. Напишіть нам напряму: Telegram {telegram} або Instagram {instagram}.", "menu");
         });
       }
     }));

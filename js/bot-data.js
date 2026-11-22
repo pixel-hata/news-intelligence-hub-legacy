@@ -13,9 +13,9 @@ window.PH_DATA = (function () {
     rateMax: 15,                 // $ за годину, верхня межа
     urgentMultiplier: 1.3,       // терміново = +30%
     hoursPerWeek: 30,            // скільки годин на тиждень іде на один проєкт (для термінів)
-    telegram: "@Zavadskiy_Dmitro (t.me/Zavadskiy_Dmitro)",
+    telegram: "@pixelhata (t.me/pixelhata)",
     instagram: "@pixel.hata (instagram.com/pixel.hata)",
-    email: "aqdemonrrr@gmail.com",
+    email: "",
     phone: "[ВАШ ТЕЛЕФОН]",
     github: "github.com/pixel-hata (Анастасія — skilloraa12-ctrl, Дмитро — dz-ui)",
     workHours: "пн–пт, 10:00–19:00 (Київ)",
@@ -166,7 +166,7 @@ window.PH_DATA = (function () {
       text: "Розгортаємо проєкти на **Linux VPS або Render** через Docker Compose, з HTTPS, бекапами і CI/CD, і можемо далі супроводжувати. Налаштування — від $75; супровід — {supportFrom}. Оренду сервера оплачуєте ви напряму провайдеру.",
       next: ["faq:hosting", "faq:support", "menu"] },
     { id: "contacts", keys: ["контакт", "зв'яз", "звʼяз", "связ", "телеграм", "telegram", "пошта", "почта", "email", "e-mail", "номер", "написати вам", "написать вам"],
-      text: "Наші контакти:\n• Instagram: {instagram}\n• Telegram: {telegram}\n• Email: {email}\n• GitHub: {github}\n\nАбо залиште контакт тут — ми напишемо самі.",
+      text: "Наші контакти:\n• Telegram: {telegram}\n• Instagram: {instagram}\n\nАбо залиште контакт тут — ми напишемо самі.",
       next: ["human", "menu"] },
     { id: "news", keys: ["новин", "новост", "news", "граф"],
       text: "IT-новини — наш живий проєкт: збирає новини з RSS, робить короткі витяги і будує граф зв'язків між ними. Відкрити його можна в розділі «IT-новини» на сторінці.",
@@ -365,7 +365,7 @@ window.PH_DATA = (function () {
       text: "Криптопроєкти розглядаємо індивідуально. Напишіть людині — обговоримо, чи зможемо допомогти.",
       next: ["human", "menu"] },
     { id: "jobs", keys: ["ваканс", "працювати у вас", "работать у вас", "стажув", "стажир", "резюме", "junior", "джун", "у команду", "в команду"],
-      text: "Дякуємо за інтерес! Поки нас двоє, але резюме або портфоліо можна надіслати на {email}.",
+      text: "Дякуємо за інтерес! Поки нас двоє, але резюме або портфоліо можна надіслати в Telegram {telegram}.",
       next: ["menu"] },
     { id: "partner", keys: ["партнер", "співпрац", "сотруднич", "агенці", "агентств", "субпідряд", "субподряд", "white label", "реферал"],
       text: "Відкриті до співпраці з агенціями і фрилансерами: субпідряд, white label, винагорода за рекомендацію [уточнити %]. Напишіть людині — обговоримо умови.",
