@@ -124,3 +124,9 @@ details.pr th{color:var(--coral-l)}
 .promo{justify-self:start;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#0A0B12;background:var(--coral-l,#FF8A6A);border-radius:999px;padding:3px 10px}
 .two-price s{color:var(--dim);font-size:.85em;margin-left:4px}
 .person .ph:has(img){padding:0}
+/* Фото команди: однакове кадрування й тонування в гамі сайту */
+.person .ph:has(img){position:relative;overflow:hidden;background:#0E0F18}
+.person .ph img{object-position:50% 20%;filter:saturate(.9) contrast(1.04)}
+.person .ph:has(img)::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(91,108,255,.10),rgba(10,11,18,0) 35%,rgba(10,11,18,0) 70%,rgba(255,106,69,.14)),linear-gradient(90deg,rgba(10,11,18,0) 75%,rgba(18,19,29,.55))}
+@media (max-width:560px){.person .ph:has(img){aspect-ratio:4/5;min-height:0}}
