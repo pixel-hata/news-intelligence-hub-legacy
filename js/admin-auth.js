@@ -12,6 +12,10 @@
     const ok = !!email && (!allowed.length || allowed.includes(email));
     gate.hidden = ok; app.hidden = !ok;
     if (ok && who) who.textContent = email;
+    const had = !!window.PH_AUTH_TOKEN;
+    window.PH_AUTH_TOKEN = ok ? session.access_token : null;
+    window.PH_AUTH_EMAIL = ok ? email : null;
+    if (ok && !had) { try { window.dispatchEvent(new Event("ph:signedin")); } catch (e) {} }
     return ok;
   }
   function say(t, bad) { msg.textContent = t; msg.className = "lf-s" + (bad ? " bad" : ""); }

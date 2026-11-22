@@ -7,8 +7,8 @@
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/site.css?v=202611221946">
-<link rel="stylesheet" href="css/bot.css?v=202611221946">
+<link rel="stylesheet" href="css/site.css?v=202611222202">
+<link rel="stylesheet" href="css/bot.css?v=202611222202">
 <style>
 [hidden]{display:none!important}
 .badge:empty{display:none}
@@ -126,6 +126,7 @@
   <section id="tab-learn" hidden style="display:grid;gap:18px">
     <div class="u-card">
       <h2 class="subh" style="margin:0">Як бот вчиться</h2>
+      <p class="lf-s" id="cloudStatus" style="margin:0"></p>
       <p class="muted" style="margin:0;font-size:14px">Кожне питання, яке бот не зрозумів, і кожне «Це не те, що я питав» потрапляє сюди. Якщо після цього клієнт сам натиснув якусь тему, бот підкаже її. Додайте фразу до готової відповіді або напишіть нову — бот одразу почне так відповідати всім.</p>
       <div class="tester">
         <label for="testIn" class="sr">Перевірити фразу</label>
@@ -160,10 +161,10 @@
   </section>
 </div>
 
-<script src="js/bot-data.js?v=202611221946"></script>
-<script src="js/leads.js?v=202611221946"></script>
-<script src="js/learn.js?v=202611221946"></script>
-<script src="js/content.js?v=202611221946"></script>
+<script src="js/bot-data.js?v=202611222202"></script>
+<script src="js/leads.js?v=202611222202"></script>
+<script src="js/learn.js?v=202611222202"></script>
+<script src="js/content.js?v=202611222202"></script>
 <script>
 (function () {
   const L = window.PHLeads, LR = window.PHLearn;
@@ -329,6 +330,7 @@
     catch (err) { res.textContent = "Не вийшло прочитати текст. Скопіюйте від ChatGPT тільки блок JSON — від першої { до останньої }."; }
   };
   window.addEventListener("storage", () => { renderLeads(); renderLearn(); });
+  window.addEventListener("phlearn:sync", () => renderLearn());
   renderLeads(); renderLearn();
   let start = "leads"; try { start = localStorage.getItem("pixelhub.adminTab") || "leads"; } catch (e) {}
   if (location.hash === "#learn") start = "learn";
@@ -386,7 +388,8 @@
 })();
 </script>
 <script src="vendor/supabase.js"></script>
-<script src="js/auth-config.js?v=202611221946"></script>
-<script src="js/admin-auth.js?v=202611221946"></script>
+<script src="js/auth-config.js?v=202611222202"></script>
+<script src="js/learn-cloud.js?v=202611222202"></script>
+<script src="js/admin-auth.js?v=202611222202"></script>
 </body>
 </html>
