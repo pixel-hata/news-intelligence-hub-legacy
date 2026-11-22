@@ -6,5 +6,5 @@
 window.PH_AUTH = {
   SUPABASE_URL: "https://rheeoeeewtucppooyvcb.supabase.co",
   SUPABASE_ANON_KEY: "",
-  ADMIN_EMAILS: []
+  ADMIN_EMAILS: ["skil.loraa12@gmail.com", "dz@lmlift.com"]
 };
