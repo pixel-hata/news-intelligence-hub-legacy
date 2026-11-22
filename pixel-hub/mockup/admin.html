@@ -34,18 +34,23 @@
 .tres b{color:var(--ink)}
 .subh{font:600 18px var(--f-display);margin:8px 0 0}
 .ok{color:#9FE6C4;font-size:13px}
+.u-form select,.lf-row select{font:14px var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;min-height:42px;padding:8px 12px;width:100%}
+.cats{border:0;padding:0;margin:0}.cats legend{font-size:12px;font-weight:700;color:var(--dim);margin-bottom:6px}
+.cats label.pill{cursor:pointer;font-size:12px}
 </style>
 </head>
 <body>
 <div class="admin">
   <div class="admin-top">
     <div style="display:grid;gap:10px">
-      <a class="brand" href="index.html"><img src="assets/logo-duo.png" alt="" width="36" height="36"><span>pixel<b>hata</b></span></a>
+      <a class="brand" href="index.html"><img src="assets/logo-hata.png" alt="" width="36" height="36"><span class="wm-code"><i>&lt;</i>pixel <b>hata</b><i>&gt;</i></span></a>
       <h1 class="h2" style="font-size:clamp(26px,4vw,40px)">кабінет команди</h1>
     </div>
     <div class="tabs" role="tablist" aria-label="Розділи кабінету">
       <button type="button" class="pill" role="tab" aria-pressed="true" data-tab="leads">Заявки <span class="badge" id="bLeads"></span></button>
       <button type="button" class="pill" role="tab" aria-pressed="false" data-tab="learn">Навчання бота <span class="badge" id="bLearn"></span></button>
+      <button type="button" class="pill" role="tab" aria-pressed="false" data-tab="projects">Проєкти</button>
+      <button type="button" class="pill" role="tab" aria-pressed="false" data-tab="reviews">Відгуки <span class="badge" id="bRev"></span></button>
     </div>
   </div>
   <p class="admin-note">Це макет: дані зберігаються тільки в цьому браузері. На справжньому сайті заявки і питання всіх клієнтів збиратимуться на сервері, а заявки ще й приходитимуть у ваш Telegram-канал і на пошту.</p>
@@ -62,6 +67,39 @@
       </div>
     </div>
     <div id="list" style="display:grid;gap:16px"></div>
+  </section>
+
+  <!-- ===== Проєкти ===== -->
+  <section id="tab-projects" hidden style="display:grid;gap:18px">
+    <form class="u-card" id="pForm" novalidate>
+      <h2 class="subh" style="margin:0">Додати проєкт у портфоліо</h2>
+      <div class="lf-grid">
+        <div class="lf-row"><label for="pTitle">Назва *</label><input id="pTitle" maxlength="80" required></div>
+        <div class="lf-row"><label for="pWho">Чия робота</label><select id="pWho"><option>Анастасія</option><option>Діма</option><option>Анастасія і Діма</option></select></div>
+        <div class="lf-row"><label for="pTag">Тип (коротко)</label><input id="pTag" maxlength="60" placeholder="сайт кавʼярні, CRM для СТО…"></div>
+        <div class="lf-row"><label for="pPrice">Ціна «під ключ», якщо на продаж ($)</label><input id="pPrice" type="number" min="0" step="10" placeholder="порожньо — не продаємо"></div>
+      </div>
+      <fieldset class="cats"><legend>Категорії фільтра</legend><div id="pCats" class="lf-act"></div></fieldset>
+      <div class="lf-row"><label for="pDesc">Опис: що за проєкт і що зробили</label><textarea id="pDesc" rows="3" maxlength="400"></textarea></div>
+      <div class="lf-grid">
+        <div class="lf-row"><label for="pStack">Технології</label><input id="pStack" maxlength="120" placeholder="React · Supabase"></div>
+        <div class="lf-row"><label for="pSite">Посилання на сайт</label><input id="pSite" type="url" placeholder="https://…"></div>
+        <div class="lf-row"><label for="pCode">Посилання на код (GitHub)</label><input id="pCode" type="url" placeholder="https://github.com/…"></div>
+        <div class="lf-row"><label for="pImg">Скріншот (картинка)</label><input id="pImg" type="file" accept="image/png,image/jpeg,image/webp"></div>
+      </div>
+      <div class="lf-act"><button class="btn hot sm" type="submit">Додати на сайт</button><span class="tres" id="pMsg" aria-live="polite"></span></div>
+    </form>
+    <div class="admin-top"><h2 class="subh">Додані проєкти</h2><button type="button" class="btn sm" id="pExport">Завантажити все (.json)</button></div>
+    <div id="pList" style="display:grid;gap:12px"></div>
+  </section>
+
+  <!-- ===== Відгуки ===== -->
+  <section id="tab-reviews" hidden style="display:grid;gap:18px">
+    <p class="admin-note">Відгуки на 3–5 зірок зʼявляються на сайті одразу. На 1–2 зірки — чекають тут вашого рішення. Будь-який відгук можна видалити.</p>
+    <h2 class="subh">Чекають перевірки</h2>
+    <div id="rPending" style="display:grid;gap:12px"></div>
+    <h2 class="subh">Опубліковані</h2>
+    <div id="rPublished" style="display:grid;gap:12px"></div>
   </section>
 
   <!-- ===== Навчання ===== -->
@@ -105,6 +143,7 @@
 <script src="js/bot-data.js"></script>
 <script src="js/leads.js"></script>
 <script src="js/learn.js"></script>
+<script src="js/content.js"></script>
 <script>
 (function () {
   const L = window.PHLeads, LR = window.PHLearn;
@@ -125,6 +164,8 @@
     tabs.forEach(t => t.setAttribute("aria-pressed", String(t.dataset.tab === id)));
     document.getElementById("tab-leads").hidden = id !== "leads";
     document.getElementById("tab-learn").hidden = id !== "learn";
+    document.getElementById("tab-projects").hidden = id !== "projects";
+    document.getElementById("tab-reviews").hidden = id !== "reviews";
     try { localStorage.setItem("pixelhub.adminTab", id); } catch (e) {}
   }
   tabs.forEach(t => t.onclick = () => showTab(t.dataset.tab));
@@ -272,6 +313,56 @@
   let start = "leads"; try { start = localStorage.getItem("pixelhub.adminTab") || "leads"; } catch (e) {}
   if (location.hash === "#learn") start = "learn";
   showTab(start);
+})();
+</script>
+<script>
+(function () {
+  const C = window.PHContent, $ = id => document.getElementById(id);
+  const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+  const sure = (btn, fn) => { if (btn.dataset.sure) fn(); else { btn.dataset.sure = "1"; btn.textContent = "Точно?"; } };
+  /* категорії */
+  $("pCats").replaceChildren(...Object.entries(C.CATS).map(([k, v]) => { const l = el("label", "pill"); const i = el("input"); i.type = "checkbox"; i.value = k; i.style.marginRight = "6px"; l.append(i, v); return l; }));
+  function renderProjects() {
+    const arr = C.projects();
+    $("pList").replaceChildren(...(arr.length ? arr.map(p => {
+      const c = el("article", "u-card"); const top = el("div", "lead-top"); top.append(el("h3", null, p.title), el("span", "st estimate", p.who));
+      const meta = el("div", "u-meta"); meta.append(el("span", null, (p.tag || "") + (p.price ? " · на продаж від $" + p.price : "")), el("span", null, p.cats.map(k => C.CATS[k]).join(", ")));
+      if (p.site) { const a = el("a", null, "сайт"); a.href = p.site; a.target = "_blank"; meta.append(a); }
+      if (p.code) { const a = el("a", null, "код"); a.href = p.code; a.target = "_blank"; meta.append(a); }
+      const del = el("button", "btn sm", "Видалити з сайту"); del.type = "button"; del.onclick = () => sure(del, () => { C.removeProject(p.id); renderProjects(); });
+      c.append(top, meta); if (p.desc) c.append(el("p", "muted", p.desc)); c.append(del); return c;
+    }) : [el("p", "empty", "Тут зʼявляться проєкти, які ви додасте через форму вище. Вони одразу покажуться в портфоліо на сайті.")]));
+  }
+  $("pForm").addEventListener("submit", async ev => {
+    ev.preventDefault(); const msg = $("pMsg");
+    if (!$("pTitle").value.trim()) { msg.textContent = "Вкажіть назву проєкту."; $("pTitle").focus(); return; }
+    let image = "";
+    const f = $("pImg").files[0];
+    if (f) { try { image = await C.shrinkImage(f); } catch (e) { msg.textContent = "Не вдалося прочитати картинку — оберіть PNG або JPG."; return; } }
+    const p = C.addProject({ title: $("pTitle").value, who: $("pWho").value, tag: $("pTag").value, price: $("pPrice").value, cats: [...document.querySelectorAll("#pCats input:checked")].map(i => i.value), desc: $("pDesc").value, stack: $("pStack").value, site: $("pSite").value, code: $("pCode").value, image });
+    if (!p) { msg.textContent = "Не вдалося зберегти: можливо, закінчилось місце в браузері. Спробуйте меншу картинку."; return; }
+    msg.textContent = "Додано! Проєкт уже в портфоліо на сайті."; ev.target.reset(); renderProjects();
+  });
+  $("pExport").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([C.exportJson()], { type: "application/json" })); a.download = "pixelhata-content.json"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 300); };
+  /* відгуки */
+  function reviewCard(r) {
+    const c = el("article", "u-card"); const top = el("div", "lead-top");
+    top.append(el("h3", null, "★".repeat(r.stars) + "☆".repeat(5 - r.stars) + "  " + r.name), el("span", "st " + (r.status === "pending" ? "estimate" : "question"), r.status === "pending" ? "на перевірці" : "на сайті"));
+    c.append(top, el("p", null, r.text), el("p", "tres", (r.project ? r.project + " · " : "") + new Date(r.createdAt).toLocaleString("uk-UA")));
+    const act = el("div", "lf-act");
+    if (r.status === "pending") { const ok = el("button", "btn hot sm", "Опублікувати"); ok.type = "button"; ok.onclick = () => { C.setReview(r.id, "published"); renderReviews(); }; act.append(ok); }
+    else { const hide = el("button", "btn sm", "Сховати з сайту"); hide.type = "button"; hide.onclick = () => { C.setReview(r.id, "pending"); renderReviews(); }; act.append(hide); }
+    const del = el("button", "btn sm", "Видалити"); del.type = "button"; del.onclick = () => sure(del, () => { C.removeReview(r.id); renderReviews(); }); act.append(del);
+    c.append(act); return c;
+  }
+  function renderReviews() {
+    const all = C.reviews(), pend = all.filter(r => r.status === "pending"), pub = all.filter(r => r.status === "published");
+    $("bRev").textContent = pend.length || "";
+    $("rPending").replaceChildren(...(pend.length ? pend.map(reviewCard) : [el("p", "empty", "Немає відгуків, що чекають перевірки.")]));
+    $("rPublished").replaceChildren(...(pub.length ? pub.map(reviewCard) : [el("p", "empty", "Опублікованих відгуків поки немає.")]));
+  }
+  renderProjects(); renderReviews();
+  window.addEventListener("storage", () => { renderProjects(); renderReviews(); });
 })();
 </script>
 </body>

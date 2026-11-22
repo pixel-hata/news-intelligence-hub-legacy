@@ -15,9 +15,9 @@
 
 <header class="nav">
   <div class="in">
-    <a class="brand" href="#top" aria-label="Pixel Hata, на початок"><img src="assets/logo-duo.png" alt="" width="40" height="40"><span>pixel<b>hata</b></span></a>
+    <a class="brand" href="#top" aria-label="Pixel Hata, на початок"><img src="assets/logo-hata.png" alt="" width="40" height="40"><span class="wm-code"><i>&lt;</i>pixel <b>hata</b><i>&gt;</i></span></a>
     <nav class="links" aria-label="Розділи">
-      <a href="#about">Про нас</a><a href="#work">Портфоліо</a><a href="#ready">Готові роботи</a><a href="#prices">Ціни</a><a href="news.html">IT-новини</a><a href="#contacts">Контакти</a>
+      <a href="#about">Про нас</a><a href="#work">Портфоліо</a><a href="#ready">Готові роботи</a><a href="#prices">Ціни</a><a href="news.html">IT-новини</a><a href="#reviews">Відгуки</a><a href="#contacts">Контакти</a>
     </nav>
     <a class="btn hot" href="#estimate" data-bot="estimate" style="min-height:42px;padding:0 18px;font-size:14px">Оцінити проєкт</a>
   </div>
@@ -108,6 +108,7 @@
       <article class="card wcard" data-who="small"><div class="shot"><img src="assets/work/qrcards.jpg" alt="QR-картки для чайових — головний екран" loading="lazy" width="960" height="600"></div><div class="txt"><span class="tag">Анастасія · друк</span><h3>QR-картки для чайових</h3><p class="muted" style="font-size:15px">Аркуш А4 з 4 картками для каси: QR генерується на сторінці, макет у міліметрах, кнопка друку.</p><p class="stk">HTML · CSS (print) · qrcode.js</p><a class="code" href="https://github.com/BabikovaN" target="_blank" rel="noopener">Код на GitHub <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></div></article>
       <article class="card wcard" data-who="small"><div class="shot"><img src="assets/work/paska.jpg" alt="Подаруй паску воїну — головний екран" loading="lazy" width="960" height="600"></div><div class="txt"><span class="tag">Анастасія · благодійна акція</span><h3>Подаруй паску воїну</h3><p class="muted" style="font-size:15px">Сторінка акції в Черкасах: дати, адреса з картою, реквізити, QR-флаєр для друку.</p><p class="stk">HTML · CSS · JS · Google Maps · QR API</p><a class="code" href="https://github.com/BabikovaN" target="_blank" rel="noopener">Код на GitHub <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></div></article>
       <article class="card wcard" data-who="small"><div class="shot"><img src="assets/work/medrep.jpg" alt="Медичний представник — головний екран" loading="lazy" width="960" height="600"></div><div class="txt"><span class="tag">Анастасія · вебпрезентація</span><h3>Медичний представник</h3><p class="muted" style="font-size:15px">Презентація про професію: розділи, фармкомпанії, бургер-меню на чистому CSS.</p><p class="stk">HTML · CSS</p><a class="code" href="https://github.com/BabikovaN" target="_blank" rel="noopener">Код на GitHub <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></div></article>
+      <div id="extraWorks" style="display:contents"></div>
       <article class="card wcard" data-who="site shop crm app edu small"><div class="shot"><div class="ph">[скрін роботи Діми]</div></div><div class="txt"><span class="tag">Діма · [тип]</span><h3>[Назва проєкту]</h3><p class="muted" style="font-size:15px">[Що за проєкт і що саме робив.]</p></div></article>
     </div>
   </div>
@@ -198,7 +199,7 @@
     </div>
     <div class="chat" aria-label="Чат з ботом-помічником">
       <div class="chat-head">
-        <img src="assets/logo-duo.png" alt="" width="40" height="40">
+        <img src="assets/logo-hata.png" alt="" width="40" height="40">
         <div><h3>Pixel · помічник</h3><p>Бот відповідає одразу, людина — протягом дня</p></div>
         <span class="status"><i></i><span>Онлайн</span></span>
       </div>
@@ -233,6 +234,34 @@
   </div>
 </section>
 
+<section class="sec" id="reviews">
+  <div class="in">
+    <div class="sec-head">
+      <div><span class="eyebrow">відгуки</span><h2 class="h2">що кажуть клієнти</h2></div>
+      <p class="muted" id="revSummary">Працювали з нами? Залиште відгук — він допоможе іншим обрати.</p>
+    </div>
+    <div class="rev-wrap">
+      <div class="reviews" id="revList" aria-live="polite"></div>
+      <form class="card rev-form" id="revForm" novalidate>
+        <h3>Залишити відгук</h3>
+        <div class="lf-row"><label for="revName">Ваше імʼя</label><input id="revName" name="name" autocomplete="name" maxlength="60" required></div>
+        <div class="lf-row"><label for="revProject">Проєкт (необовʼязково)</label><input id="revProject" name="project" maxlength="80" placeholder="Наприклад: сайт для кавʼярні"></div>
+        <fieldset class="stars"><legend>Оцінка</legend>
+          <input type="radio" id="st5" name="stars" value="5" checked><label for="st5" title="5 зірок">★</label>
+          <input type="radio" id="st4" name="stars" value="4"><label for="st4" title="4 зірки">★</label>
+          <input type="radio" id="st3" name="stars" value="3"><label for="st3" title="3 зірки">★</label>
+          <input type="radio" id="st2" name="stars" value="2"><label for="st2" title="2 зірки">★</label>
+          <input type="radio" id="st1" name="stars" value="1"><label for="st1" title="1 зірка">★</label>
+        </fieldset>
+        <div class="lf-row"><label for="revText">Відгук</label><textarea id="revText" name="text" rows="4" maxlength="800" required></textarea></div>
+        <div class="hp" aria-hidden="true"><label for="revWeb">Не заповнюйте</label><input id="revWeb" name="website" tabindex="-1" autocomplete="off"></div>
+        <button class="btn hot" type="submit">Надіслати відгук</button>
+        <p class="lf-s" id="revMsg" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
 <section class="contact" id="contacts">
   <canvas class="gl" data-scene="field" role="img" aria-label="Хвиля з кольорових кубиків"></canvas>
   <div class="shade"></div>
@@ -251,11 +280,13 @@
 
 <footer><div class="in"><span>© 2026 Pixel Hata · <a href="https://www.instagram.com/pixel.hata/" target="_blank" rel="noopener">Instagram @pixel.hata</a></span><a href="admin.html" class="muted">Заявки (для команди)</a><span>Макет сайту</span></div></footer>
 
-<a class="bot-fab" href="#estimate" aria-label="Відкрити чат з помічником"><img src="assets/logo-duo.png" alt="" width="34" height="34"><span>Питання? Порахувати ціну</span></a>
+<a class="bot-fab" href="#estimate" aria-label="Відкрити чат з помічником"><img src="assets/logo-hata.png" alt="" width="34" height="34"><span>Питання? Порахувати ціну</span></a>
 
 <script src="vendor/three.min.js"></script>
 <script src="js/site.js"></script>
 <script src="js/scenes.js"></script>
+<script src="js/content.js"></script>
+<script src="js/site-content.js"></script>
 <script src="js/bot-data.js"></script>
 <script src="js/leads.js"></script>
 <script src="js/learn.js"></script>
