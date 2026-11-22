@@ -126,7 +126,7 @@ npm start                 # сайт на http://localhost:8080
 1. Supabase → **Authentication → Users → Add user**: пошта і пароль для кожного з команди (галочка «Auto confirm user»).
 2. Якщо в цьому проєкті Supabase є користувачі інших застосунків, реєстрацію не вимикайте: доступ до кабінету обмежує список `ADMIN_EMAILS`.
 3. Supabase → **Project Settings → API**: скопіюйте ключ **anon public** і вставте в `js/auth-config.js` → `SUPABASE_ANON_KEY`. Цей ключ публічний; секретний `service_role` у сайт не вставляти.
-4. У `ADMIN_EMAILS` — пошти, яким дозволено вхід (зараз: skil.loraa12@gmail.com, dz@lmlift.com).
+4. У `ADMIN_EMAILS` — пошти, яким дозволено вхід (зараз: skil.loraa12@gmail.com — спільний вхід для команди).
 5. Для «Забули пароль?»: Supabase → **Authentication → URL Configuration** → додайте адресу кабінету в **Redirect URLs** (наприклад `https://pixel-hata.github.io/news-intelligence-hub-legacy/admin.html`).
 
 Вхід закриває інтерфейс кабінету. Самі заявки, відгуки й проєкти поки зберігаються в браузері; щоб вони були спільні й захищені, їх треба перенести в таблиці Supabase з правилами доступу (RLS).
