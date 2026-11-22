@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pixel Hata — заявки і навчання бота</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/bot.css">
+<style>
+[hidden]{display:none!important}
+.badge:empty{display:none}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs .pill{font-size:12px}
+.badge{display:inline-flex;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--coral);color:#fff;font-size:11px;align-items:center;justify-content:center;margin-left:6px;letter-spacing:0}
+.u-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:12px}
+.u-q{font:600 17px/1.4 var(--f-body);color:var(--ink)}
+.u-meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}
+.u-meta b{color:var(--ink)}
+.u-row{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.u-row .lf-row{flex:1 1 220px}
+.u-row select,.u-row input,.u-form textarea,.u-form input{font:14px var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;min-height:42px;padding:8px 12px;width:100%}
+.u-form{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.btn.sm{min-height:42px;padding:0 16px;font-size:13px}
+.kchips{display:flex;flex-wrap:wrap;gap:6px}
+.kchip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 6px 4px 12px;border:1px solid var(--line2);border-radius:999px;color:#C9CCDC}
+.kchip button{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;width:24px;height:24px;border-radius:50%}
+.kchip button:hover{color:var(--coral-l)}
+.tester{display:flex;flex-wrap:wrap;gap:8px}
+.tester input{flex:1 1 260px;font:15px var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;min-height:44px;padding:0 12px}
+.tres{font-size:14px;color:var(--muted)}
+.tres b{color:var(--ink)}
+.subh{font:600 18px var(--f-display);margin:8px 0 0}
+.ok{color:#9FE6C4;font-size:13px}
+.u-form select,.lf-row select{font:14px var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;min-height:42px;padding:8px 12px;width:100%}
+.cats{border:0;padding:0;margin:0}.cats legend{font-size:12px;font-weight:700;color:var(--dim);margin-bottom:6px}
+.cats label.pill{cursor:pointer;font-size:12px}
+</style>
+</head>
+<body>
+<div class="admin">
+  <div class="admin-top">
+    <div style="display:grid;gap:10px">
+      <a class="brand" href="index.html"><img src="assets/logo-hata.png" alt="" width="36" height="36"><span class="wm-code"><i>&lt;</i>pixel <b>hata</b><i>&gt;</i></span></a>
+      <h1 class="h2" style="font-size:clamp(26px,4vw,40px)">кабінет команди</h1>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Розділи кабінету">
+      <button type="button" class="pill" role="tab" aria-pressed="true" data-tab="leads">Заявки <span class="badge" id="bLeads"></span></button>
+      <button type="button" class="pill" role="tab" aria-pressed="false" data-tab="learn">Навчання бота <span class="badge" id="bLearn"></span></button>
+      <button type="button" class="pill" role="tab" aria-pressed="false" data-tab="projects">Проєкти</button>
+      <button type="button" class="pill" role="tab" aria-pressed="false" data-tab="reviews">Відгуки <span class="badge" id="bRev"></span></button>
+    </div>
+  </div>
+  <p class="admin-note">Це макет: дані зберігаються тільки в цьому браузері. На справжньому сайті заявки і питання всіх клієнтів збиратимуться на сервері, а заявки ще й приходитимуть у ваш Telegram-канал і на пошту.</p>
+
+  <!-- ===== Заявки ===== -->
+  <section id="tab-leads" style="display:grid;gap:16px">
+    <div class="admin-top">
+      <p class="muted" id="count" style="margin:0"></p>
+      <div class="filters" role="group" aria-label="Фільтр заявок">
+        <button type="button" class="pill" aria-pressed="true" data-k="all">Усі</button>
+        <button type="button" class="pill" aria-pressed="false" data-k="estimate">Оцінки</button>
+        <button type="button" class="pill" aria-pressed="false" data-k="question">Питання</button>
+        <button type="button" class="btn sm" id="clearAll">Очистити все</button>
+      </div>
+    </div>
+    <div id="list" style="display:grid;gap:16px"></div>
+  </section>
+
+  <!-- ===== Проєкти ===== -->
+  <section id="tab-projects" hidden style="display:grid;gap:18px">
+    <form class="u-card" id="pForm" novalidate>
+      <h2 class="subh" style="margin:0">Додати проєкт у портфоліо</h2>
+      <div class="lf-grid">
+        <div class="lf-row"><label for="pTitle">Назва *</label><input id="pTitle" maxlength="80" required></div>
+        <div class="lf-row"><label for="pWho">Чия робота</label><select id="pWho"><option>Анастасія</option><option>Дмитро</option><option>Анастасія і Дмитро</option></select></div>
+        <div class="lf-row"><label for="pTag">Тип (коротко)</label><input id="pTag" maxlength="60" placeholder="сайт кавʼярні, CRM для СТО…"></div>
+        <div class="lf-row"><label for="pPrice">Ціна «під ключ», якщо на продаж ($)</label><input id="pPrice" type="number" min="0" step="10" placeholder="порожньо — не продаємо"></div>
+      </div>
+      <fieldset class="cats"><legend>Категорії фільтра</legend><div id="pCats" class="lf-act"></div></fieldset>
+      <div class="lf-row"><label for="pDesc">Опис: що за проєкт і що зробили</label><textarea id="pDesc" rows="3" maxlength="400"></textarea></div>
+      <div class="lf-grid">
+        <div class="lf-row"><label for="pStack">Технології</label><input id="pStack" maxlength="120" placeholder="React · Supabase"></div>
+        <div class="lf-row"><label for="pSite">Посилання на сайт</label><input id="pSite" type="url" placeholder="https://…"></div>
+        <div class="lf-row"><label for="pImg">Скріншот (картинка)</label><input id="pImg" type="file" accept="image/png,image/jpeg,image/webp"></div>
+      </div>
+      <div class="lf-act"><button class="btn hot sm" type="submit">Додати на сайт</button><span class="tres" id="pMsg" aria-live="polite"></span></div>
+    </form>
+    <div class="admin-top"><h2 class="subh">Додані проєкти</h2><button type="button" class="btn sm" id="pExport">Завантажити все (.json)</button></div>
+    <div id="pList" style="display:grid;gap:12px"></div>
+  </section>
+
+  <!-- ===== Відгуки ===== -->
+  <section id="tab-reviews" hidden style="display:grid;gap:18px">
+    <p class="admin-note">Відгуки на 3–5 зірок зʼявляються на сайті одразу. На 1–2 зірки — чекають тут вашого рішення. Будь-який відгук можна видалити.</p>
+    <h2 class="subh">Чекають перевірки</h2>
+    <div id="rPending" style="display:grid;gap:12px"></div>
+    <h2 class="subh">Опубліковані</h2>
+    <div id="rPublished" style="display:grid;gap:12px"></div>
+  </section>
+
+  <!-- ===== Навчання ===== -->
+  <section id="tab-learn" hidden style="display:grid;gap:18px">
+    <div class="u-card">
+      <h2 class="subh" style="margin:0">Як бот вчиться</h2>
+      <p class="muted" style="margin:0;font-size:14px">Кожне питання, яке бот не зрозумів, і кожне «Це не те, що я питав» потрапляє сюди. Якщо після цього клієнт сам натиснув якусь тему, бот підкаже її. Додайте фразу до готової відповіді або напишіть нову — бот одразу почне так відповідати всім.</p>
+      <div class="tester">
+        <label for="testIn" class="sr">Перевірити фразу</label>
+        <input id="testIn" placeholder="Перевірте, як бот зрозуміє фразу, напр.: «а можна в гривнях?»">
+        <button type="button" class="btn sm" id="testBtn">Перевірити</button>
+      </div>
+      <p class="tres" id="testRes" aria-live="polite"></p>
+    </div>
+
+    <div class="admin-top">
+      <h2 class="subh">Що бот не зрозумів</h2>
+      <p class="muted" id="uCount" style="margin:0"></p>
+    </div>
+    <div id="uList" style="display:grid;gap:12px"></div>
+
+    <h2 class="subh">Чому бот уже навчився</h2>
+    <div id="learned" style="display:grid;gap:12px"></div>
+
+    <div class="u-card">
+      <h2 class="subh" style="margin:0">Перенести знання</h2>
+      <p class="muted" style="margin:0;font-size:14px">Завантажте файл знань, щоб передати Дімі або перенести на справжній сайт. Імпорт додає знання, нічого не стираючи. Сюди ж можна завантажити файл від ChatGPT (див. <code>docs/prompt-for-chatgpt.md</code>) — або вставити його текст у поле нижче.</p>
+      <label for="impText" class="sr">Текст файлу знань</label>
+      <textarea id="impText" rows="4" placeholder="Вставте сюди JSON від ChatGPT і натисніть «Додати з тексту»" style="font:13px/1.5 ui-monospace,monospace;color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%"></textarea>
+      <div class="lf-act"><button type="button" class="btn sm" id="impTextBtn">Додати з тексту</button></div>
+      <div class="lf-act">
+        <button type="button" class="btn sm" id="exp">Завантажити знання (.json)</button>
+        <label class="btn sm" for="imp" style="display:inline-flex;align-items:center">Імпортувати файл</label>
+        <input type="file" id="imp" accept="application/json,.json,.txt,text/plain" class="sr">
+      </div>
+      <p class="tres" id="impRes" aria-live="polite"></p>
+    </div>
+  </section>
+</div>
+
+<script src="js/bot-data.js"></script>
+<script src="js/leads.js"></script>
+<script src="js/learn.js"></script>
+<script src="js/content.js"></script>
+<script>
+(function () {
+  const L = window.PHLeads, LR = window.PHLearn;
+  const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+  const fb = text => { const ta = document.createElement("textarea"); ta.value = text; document.body.append(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); };
+  const copy = (text, btn) => { const done = () => { const o = btn.textContent; btn.textContent = "Скопійовано"; setTimeout(() => btn.textContent = o, 1500); };
+    try { navigator.clipboard.writeText(text).then(done, () => { fb(text); done(); }); } catch (e) { fb(text); done(); } };
+  function download(name, text, type) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: type || "text/markdown;charset=utf-8" })); a.download = name;
+    document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  const dt = s => { try { return new Date(s).toLocaleString("uk-UA", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } };
+  const sure = (btn, fn, label) => { if (btn.dataset.sure) fn(); else { btn.dataset.sure = "1"; btn.textContent = label || "Точно?"; } };
+
+  /* ---------- tabs ---------- */
+  const tabs = document.querySelectorAll("[data-tab]");
+  function showTab(id) {
+    tabs.forEach(t => t.setAttribute("aria-pressed", String(t.dataset.tab === id)));
+    document.getElementById("tab-leads").hidden = id !== "leads";
+    document.getElementById("tab-learn").hidden = id !== "learn";
+    document.getElementById("tab-projects").hidden = id !== "projects";
+    document.getElementById("tab-reviews").hidden = id !== "reviews";
+    try { localStorage.setItem("pixelhub.adminTab", id); } catch (e) {}
+  }
+  tabs.forEach(t => t.onclick = () => showTab(t.dataset.tab));
+
+  /* ---------- leads ---------- */
+  let filter = "all";
+  function renderLeads() {
+    const all = L.list(), items = all.filter(l => filter === "all" || l.kind === filter);
+    document.getElementById("bLeads").textContent = all.length || "";
+    document.getElementById("count").textContent = "Усього: " + all.length + " · оцінок: " + all.filter(l => l.kind === "estimate").length + " · питань: " + all.filter(l => l.kind === "question").length;
+    const list = document.getElementById("list");
+    if (!items.length) { list.replaceChildren(el("p", "empty", "Заявок поки немає. Пройдіть оцінку в боті на головній сторінці — і заявка зʼявиться тут.")); return; }
+    list.replaceChildren(...items.map(l => {
+      const a = el("article", "lead"), top = el("div", "lead-top");
+      top.append(el("h3", null, l.title || "Заявка"), el("span", "st " + l.kind, l.kind === "question" ? "питання" : "оцінка"));
+      const meta = el("div", "lead-meta");
+      meta.append(el("span", null, new Date(l.createdAt).toLocaleString("uk-UA")));
+      if (l.contact) { const s = el("span"); s.append("Клієнт: ", el("b", null, l.contact.name), " · " + l.contact.contact); meta.append(s); }
+      if (l.estimate) { const s = el("span"); s.append("Оцінка: ", el("b", null, L.money(l.estimate.priceMin) + " – " + L.money(l.estimate.priceMax)), " · " + l.estimate.weeks); meta.append(s); }
+      a.append(top, meta);
+      if (l.question) a.append(el("p", null, "Питання: " + l.question));
+      const d1 = el("details"); d1.open = true; d1.append(el("summary", null, "Попереднє ТЗ"), el("pre", null, l.tz || "")); a.append(d1);
+      if (l.transcript && l.transcript.length) { const d2 = el("details"); d2.append(el("summary", null, "Розмова з ботом (" + l.transcript.length + ")"), el("pre", null, l.transcript.map(t => (t.role === "user" ? "Клієнт: " : "Бот: ") + t.text).join("\n\n"))); a.append(d2); }
+      const act = el("div", "lf-act");
+      const b1 = el("button", "btn sm", "Скопіювати для Telegram"); b1.type = "button"; b1.onclick = () => copy(L.telegramText(l) + "\n\n" + (l.tz || ""), b1);
+      const b2 = el("button", "btn sm", "Завантажити ТЗ (.md)"); b2.type = "button"; b2.onclick = () => download("TZ-" + (l.title || "lead").replace(/[^\p{L}\p{N}]+/gu, "-") + "-" + l.id + ".md", l.tz || "");
+      const b3 = el("button", "btn sm", "Видалити"); b3.type = "button"; b3.onclick = () => sure(b3, () => { L.remove(l.id); renderLeads(); }, "Точно видалити?");
+      act.append(b1, b2, b3); a.append(act);
+      return a;
+    }));
+  }
+  document.querySelectorAll("[data-k]").forEach(b => b.onclick = () => { filter = b.dataset.k; document.querySelectorAll("[data-k]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderLeads(); });
+  const ca = document.getElementById("clearAll");
+  ca.onclick = () => sure(ca, () => { L.clear(); delete ca.dataset.sure; ca.textContent = "Очистити все"; renderLeads(); }, "Точно очистити?");
+
+  /* ---------- learning ---------- */
+  const faqOptions = (sel, chosen) => {
+    LR.faqs().slice().sort((a, b) => LR.title(a).localeCompare(LR.title(b), "uk")).forEach(f => {
+      const o = el("option", null, LR.title(f) + (f.custom ? " (ваша)" : "")); o.value = f.id; if (f.id === chosen) o.selected = true; sel.append(o);
+    });
+  };
+  const splitKeys = v => v.split(",").map(x => x.trim()).filter(Boolean);
+  let uid = 0;
+
+  function renderUnknown() {
+    const arr = LR.unknown().slice().sort((a, b) => b.count - a.count || String(b.last).localeCompare(String(a.last)));
+    document.getElementById("bLearn").textContent = arr.length || "";
+    document.getElementById("uCount").textContent = arr.length ? arr.length + " фраз, усього разів: " + arr.reduce((s, x) => s + x.count, 0) : "";
+    const box = document.getElementById("uList");
+    if (!arr.length) { box.replaceChildren(el("p", "empty", "Бот поки все розуміє. Нерозпізнані питання клієнтів зʼявляться тут.")); return; }
+    box.replaceChildren(...arr.map(it => {
+      const n = ++uid;
+      const c = el("article", "u-card");
+      c.append(el("p", "u-q", "«" + it.text + "»"));
+      const m = el("div", "u-meta");
+      const cnt = el("span"); cnt.append("Спитали ", el("b", null, it.count + " раз(и)")); m.append(cnt);
+      m.append(el("span", null, "востаннє " + dt(it.last)));
+      if (it.kind === "wrong") { const f = LR.faqs().find(x => x.id === it.faqId); const s = el("span"); s.append("Бот відповів ", el("b", null, "«" + (f ? LR.title(f) : it.faqId) + "»"), ", а клієнт сказав «не те»"); m.append(s); }
+      else m.append(el("span", null, "Бот не зрозумів" + (it.ctx && it.ctx !== "idle" ? " (" + it.ctx + ")" : "")));
+      if (it.suggest) { const f = LR.faqs().find(x => x.id === it.suggest); if (f) { const s = el("span"); s.append("Потім клієнт обрав: ", el("b", null, LR.title(f))); m.append(s); } }
+      c.append(m);
+
+      // add to existing answer
+      const row = el("div", "u-row");
+      const r1 = el("div", "lf-row"); const l1 = el("label", null, "Додати до відповіді"); l1.htmlFor = "s" + n;
+      const sel = document.createElement("select"); sel.id = "s" + n; faqOptions(sel, it.suggest || ""); if (!it.suggest) { const ph = el("option", null, "— оберіть відповідь —"); ph.value = ""; ph.selected = true; sel.prepend(ph); }
+      r1.append(l1, sel);
+      const r2 = el("div", "lf-row"); const l2 = el("label", null, "Ключові слова (через кому)"); l2.htmlFor = "k" + n;
+      const kin = document.createElement("input"); kin.id = "k" + n; kin.value = it.n; r2.append(l2, kin);
+      const add = el("button", "btn hot sm", "Навчити"); add.type = "button";
+      add.onclick = () => { if (!sel.value) { sel.focus(); return; } LR.addKeys(sel.value, splitKeys(kin.value)); LR.dropUnknown(it.n); renderLearn(); };
+      row.append(r1, r2, add); c.append(row);
+
+      // new answer
+      const act = el("div", "lf-act");
+      const nb = el("button", "btn sm", "Написати нову відповідь"); nb.type = "button";
+      const ig = el("button", "btn sm", "Ігнорувати"); ig.type = "button"; ig.onclick = () => { LR.ignore(it.n); renderLearn(); };
+      act.append(nb, ig); c.append(act);
+      const f = el("div", "u-form"); f.hidden = true;
+      const t1 = document.createElement("input"); t1.placeholder = "Назва теми, напр.: Оплата в гривнях"; t1.setAttribute("aria-label", "Назва теми");
+      const t2 = document.createElement("textarea"); t2.rows = 4; t2.placeholder = "Відповідь бота клієнту"; t2.setAttribute("aria-label", "Відповідь бота");
+      const t3 = document.createElement("input"); t3.value = it.n; t3.setAttribute("aria-label", "Ключові слова через кому");
+      const sv = el("button", "btn hot sm", "Зберегти відповідь"); sv.type = "button";
+      const hint = el("p", "tres", "Ключові слова — шматки слів через кому, напр.: гривн, курс, грн. Бот розуміє і слова з одруківками.");
+      sv.onclick = () => { if (!t2.value.trim()) { t2.focus(); return; } LR.addCustom(t1.value, t2.value, splitKeys(t3.value)); LR.dropUnknown(it.n); renderLearn(); };
+      f.append(t1, t2, t3, hint, sv); c.append(f);
+      nb.onclick = () => { f.hidden = !f.hidden; if (!f.hidden) t1.focus(); };
+      return c;
+    }));
+  }
+
+  function renderLearned() {
+    const l = LR.learned(), box = document.getElementById("learned");
+    const parts = [];
+    l.custom.forEach(cu => {
+      const c = el("article", "u-card");
+      const top = el("div", "lead-top"); top.append(el("h3", null, cu.title), el("span", "st estimate", "ваша відповідь")); c.append(top);
+      const t2 = document.createElement("textarea"); t2.value = cu.text; t2.rows = 3; t2.setAttribute("aria-label", "Текст відповіді");
+      t2.style.cssText = "font:14px var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%";
+      const k = document.createElement("input"); k.value = cu.keys.join(", "); k.setAttribute("aria-label", "Ключові слова");
+      k.style.cssText = t2.style.cssText;
+      const act = el("div", "lf-act");
+      const sv = el("button", "btn sm", "Зберегти зміни"); sv.type = "button";
+      const ok = el("span", "ok");
+      sv.onclick = () => { LR.updateCustom(cu.id, { text: t2.value, keys: splitKeys(k.value) }); ok.textContent = "Збережено"; setTimeout(() => ok.textContent = "", 1500); };
+      const del = el("button", "btn sm", "Видалити"); del.type = "button"; del.onclick = () => sure(del, () => { LR.removeCustom(cu.id); renderLearn(); }, "Точно видалити?");
+      act.append(sv, del, ok);
+      c.append(t2, k, act); parts.push(c);
+    });
+    Object.keys(l.extraKeys).filter(id => l.extraKeys[id].length).forEach(id => {
+      const f = LR.faqs().find(x => x.id === id);
+      const c = el("article", "u-card");
+      const top = el("div", "lead-top"); top.append(el("h3", null, f ? LR.title(f) : id), el("span", "st question", "нові фрази")); c.append(top);
+      const ch = el("div", "kchips");
+      l.extraKeys[id].forEach(key => { const s = el("span", "kchip", key); const x = el("button", null, "×"); x.type = "button"; x.setAttribute("aria-label", "Прибрати фразу " + key); x.onclick = () => { LR.removeKey(id, key); renderLearn(); }; s.append(x); ch.append(s); });
+      c.append(ch); parts.push(c);
+    });
+    if (!parts.length) parts.push(el("p", "empty", "Поки нічого. Навчіть бота на першому нерозпізнаному питанні — і воно зʼявиться тут."));
+    box.replaceChildren(...parts);
+  }
+  function renderLearn() { renderUnknown(); renderLearned(); }
+
+  document.getElementById("testBtn").onclick = () => {
+    const v = document.getElementById("testIn").value.trim(), out = document.getElementById("testRes");
+    if (!v) return;
+    const f = LR.match(v);
+    out.replaceChildren();
+    if (f) { out.append("Бот відповість темою ", el("b", null, "«" + LR.title(f) + "»"), ": " + L.fill(LR.faqs().find(x => x.id === f.id).text).replace(/\*\*/g, "").slice(0, 160) + "…"); }
+    else out.append("Бот не зрозуміє цю фразу. Додайте її до відповіді нижче або напишіть нову.");
+  };
+  document.getElementById("testIn").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("testBtn").click(); });
+  document.getElementById("exp").onclick = () => download("pixelhata-bot-knowledge.json", LR.exportJson(), "application/json");
+  document.getElementById("imp").onchange = e => {
+    const file = e.target.files[0], res = document.getElementById("impRes"); if (!file) return;
+    file.text().then(t => { const n = LR.importJson(t); res.textContent = "Готово: додано " + n + " нових фраз і відповідей."; renderLearn(); e.target.value = ""; }).catch(() => { res.textContent = "Не вдалося прочитати файл. Оберіть файл, завантажений кнопкою «Завантажити знання»."; });
+  };
+
+  document.getElementById("impTextBtn").onclick = () => {
+    const res = document.getElementById("impRes"), ta = document.getElementById("impText");
+    try { const n = LR.importJson(ta.value); res.textContent = "Готово: додано " + n + " нових фраз і відповідей."; ta.value = ""; renderLearn(); }
+    catch (err) { res.textContent = "Не вийшло прочитати текст. Скопіюйте від ChatGPT тільки блок JSON — від першої { до останньої }."; }
+  };
+  window.addEventListener("storage", () => { renderLeads(); renderLearn(); });
+  renderLeads(); renderLearn();
+  let start = "leads"; try { start = localStorage.getItem("pixelhub.adminTab") || "leads"; } catch (e) {}
+  if (location.hash === "#learn") start = "learn";
+  showTab(start);
+})();
+</script>
+<script>
+(function () {
+  const C = window.PHContent, $ = id => document.getElementById(id);
+  const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+  const sure = (btn, fn) => { if (btn.dataset.sure) fn(); else { btn.dataset.sure = "1"; btn.textContent = "Точно?"; } };
+  /* категорії */
+  $("pCats").replaceChildren(...Object.entries(C.CATS).map(([k, v]) => { const l = el("label", "pill"); const i = el("input"); i.type = "checkbox"; i.value = k; i.style.marginRight = "6px"; l.append(i, v); return l; }));
+  function renderProjects() {
+    const arr = C.projects();
+    $("pList").replaceChildren(...(arr.length ? arr.map(p => {
+      const c = el("article", "u-card"); const top = el("div", "lead-top"); top.append(el("h3", null, p.title), el("span", "st estimate", p.who));
+      const meta = el("div", "u-meta"); meta.append(el("span", null, (p.tag || "") + (p.price ? " · на продаж від $" + p.price : "")), el("span", null, p.cats.map(k => C.CATS[k]).join(", ")));
+      if (p.site) { const a = el("a", null, "сайт"); a.href = p.site; a.target = "_blank"; meta.append(a); }
+      if (p.code) { const a = el("a", null, "код"); a.href = p.code; a.target = "_blank"; meta.append(a); }
+      const del = el("button", "btn sm", "Видалити з сайту"); del.type = "button"; del.onclick = () => sure(del, () => { C.removeProject(p.id); renderProjects(); });
+      c.append(top, meta); if (p.desc) c.append(el("p", "muted", p.desc)); c.append(del); return c;
+    }) : [el("p", "empty", "Тут зʼявляться проєкти, які ви додасте через форму вище. Вони одразу покажуться в портфоліо на сайті.")]));
+  }
+  $("pForm").addEventListener("submit", async ev => {
+    ev.preventDefault(); const msg = $("pMsg");
+    if (!$("pTitle").value.trim()) { msg.textContent = "Вкажіть назву проєкту."; $("pTitle").focus(); return; }
+    let image = "";
+    const f = $("pImg").files[0];
+    if (f) { try { image = await C.shrinkImage(f); } catch (e) { msg.textContent = "Не вдалося прочитати картинку — оберіть PNG або JPG."; return; } }
+    const p = C.addProject({ title: $("pTitle").value, who: $("pWho").value, tag: $("pTag").value, price: $("pPrice").value, cats: [...document.querySelectorAll("#pCats input:checked")].map(i => i.value), desc: $("pDesc").value, stack: $("pStack").value, site: $("pSite").value, image });
+    if (!p) { msg.textContent = "Не вдалося зберегти: можливо, закінчилось місце в браузері. Спробуйте меншу картинку."; return; }
+    msg.textContent = "Додано! Проєкт уже в портфоліо на сайті."; ev.target.reset(); renderProjects();
+  });
+  $("pExport").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([C.exportJson()], { type: "application/json" })); a.download = "pixelhata-content.json"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 300); };
+  /* відгуки */
+  function reviewCard(r) {
+    const c = el("article", "u-card"); const top = el("div", "lead-top");
+    top.append(el("h3", null, "★".repeat(r.stars) + "☆".repeat(5 - r.stars) + "  " + r.name), el("span", "st " + (r.status === "pending" ? "estimate" : "question"), r.status === "pending" ? "на перевірці" : "на сайті"));
+    c.append(top, el("p", null, r.text), el("p", "tres", (r.project ? r.project + " · " : "") + new Date(r.createdAt).toLocaleString("uk-UA")));
+    const act = el("div", "lf-act");
+    if (r.status === "pending") { const ok = el("button", "btn hot sm", "Опублікувати"); ok.type = "button"; ok.onclick = () => { C.setReview(r.id, "published"); renderReviews(); }; act.append(ok); }
+    else { const hide = el("button", "btn sm", "Сховати з сайту"); hide.type = "button"; hide.onclick = () => { C.setReview(r.id, "pending"); renderReviews(); }; act.append(hide); }
+    const del = el("button", "btn sm", "Видалити"); del.type = "button"; del.onclick = () => sure(del, () => { C.removeReview(r.id); renderReviews(); }); act.append(del);
+    c.append(act); return c;
+  }
+  function renderReviews() {
+    const all = C.reviews(), pend = all.filter(r => r.status === "pending"), pub = all.filter(r => r.status === "published");
+    $("bRev").textContent = pend.length || "";
+    $("rPending").replaceChildren(...(pend.length ? pend.map(reviewCard) : [el("p", "empty", "Немає відгуків, що чекають перевірки.")]));
+    $("rPublished").replaceChildren(...(pub.length ? pub.map(reviewCard) : [el("p", "empty", "Опублікованих відгуків поки немає.")]));
+  }
+  renderProjects(); renderReviews();
+  window.addEventListener("storage", () => { renderProjects(); renderReviews(); });
+})();
+</script>
+</body>
+</html>
