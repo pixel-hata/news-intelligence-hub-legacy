@@ -4,7 +4,7 @@
   btns.forEach(b => b.addEventListener('click', () => {
     btns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     const f = b.dataset.f;
-    document.querySelectorAll('[data-who]').forEach(c => { c.hidden = !(f === 'all' || c.dataset.who === f); });
+    document.querySelectorAll('[data-who]').forEach(c => { c.hidden = !(f === 'all' || c.dataset.who.split(' ').includes(f)); });
   }));
 })();
 
