@@ -180,3 +180,14 @@ details.pr th{color:var(--coral-l)}
   .est-head,.est-body{padding-left:14px;padding-right:14px}
   .est .total{font-size:24px}
 }
+
+/* ===== Вітрина на головній і сторінка «Роботи» ===== */
+.more-row{display:flex;justify-content:center;margin-top:32px}
+.more-row .btn{gap:10px;min-height:54px;padding:0 30px;font-size:16px;border-color:var(--line2);background:var(--surface)}
+.more-row .btn:hover{border-color:var(--coral-l)}
+.works-hero{border-top:0;padding-bottom:8px}
+.works-hero .back{color:var(--muted);font-weight:600;font-size:14px;min-height:40px;display:inline-flex;align-items:center;justify-self:start}
+.works-hero .back:hover{color:var(--ink)}
+.jump{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.h2 .cnt{display:inline-grid;place-items:center;min-width:1.6em;height:1.6em;margin-left:.3em;padding:0 .35em;border-radius:999px;background:var(--surface2);border:1px solid var(--line2);font-size:.42em;vertical-align:.45em;color:var(--muted)}
+.works-cta{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:20px}
