@@ -57,7 +57,7 @@ window.PHLeads = (function () {
       e.items.forEach(i => L.push("| " + i.item + " | " + (i.hours != null ? i.hours : i.h[0] + "–" + i.h[1]) + " | " + (i.cost != null ? money(i.cost) : money(i.h[0] * D.STUDIO.rateMin * e.mult) + " – " + money(i.h[1] * D.STUDIO.rateMax * e.mult)) + " |"));
       L.push("| **Разом** | **" + (e.hours != null ? e.hours : e.ha + "–" + e.hb) + "** | **" + priceText(e) + "** |");
       L.push("");
-      L.push("- Ставка: $" + (e.rate || (D.STUDIO.rateMin + "–" + D.STUDIO.rateMax)) + " за годину" + (e.mult > 1 ? ", терміново ×" + e.mult : ""));
+      L.push("- Ставка: $" + D.STUDIO.rateMax + " за годину" + (e.hours > (D.STUDIO.bigProjectHours || 60) ? ", години понад " + (D.STUDIO.bigProjectHours || 60) + " — $" + D.STUDIO.rateMin : "") + (e.mult > 1 ? ", терміново ×" + e.mult : ""));
       L.push("- Сума попередня: може змінитися в процесі обговорення та консультації");
       L.push("- Термін: " + e.weeks);
       if (e.mvp) L.push("- Мінімальна версія (без додаткових функцій): " + priceText(e.mvp));

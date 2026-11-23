@@ -338,19 +338,23 @@
     if (items.length && type.id !== "brand" && type.id !== "design") items.push({ item: "Тестування і запуск", h: [4, 10] });
     items.forEach(i => { i.hours = hrs(i.h); });
     let hours = items.reduce((s, i) => s + i.hours, 0);
-    const big = hours >= (S.bigProjectHours || 60);
-    const rate = big ? S.rateMin : S.rateMax;
+    const cap = S.bigProjectHours || 60;
+    // поступова ставка: перші 60 год — $15, кожна наступна — $10 (великі обсяги дешевші, але сума ніколи не падає)
+    const work = h => Math.min(h, cap) * S.rateMax + Math.max(0, h - cap) * S.rateMin;
     const r5 = v => Math.round(v / 5) * 5;
     // мінімальний обсяг для цього типу проєкту: доповнюємо розбивку, щоб години й сума сходилися
     const floor = (S.minPrice || {})[type.id] || 20;
-    if (hours * rate < floor) {
-      const add = Math.ceil((floor - hours * rate) / rate);
+    if (work(hours) < floor) {
+      let add = 0; while (work(hours + add) < floor) add++;
       items.push({ item: "Базова частина: структура, налаштування, перевірка", h: [0, 0], hours: add });
       hours += add;
     }
-    items.forEach(i => { i.cost = r5(i.hours * rate * mult); });
-    const price = r5(hours * rate * mult);
-    const promo = promoActive() ? S.promo.percent : 0;
+    const big = hours > cap;
+    const rate = big ? Math.round(work(hours) / hours * 10) / 10 : S.rateMax;   // середня ставка для показу
+    const price = r5(work(hours) * mult);
+    items.forEach(i => { i.cost = r5(price * i.hours / hours); });
+    // до 31 липня — акція −50%, потім — знижка на перше замовлення
+    const promo = promoActive() ? S.promo.percent : (S.discounts ? S.discounts.firstOrder : 0);
     const promoPrice = promo ? r5(price * (100 - promo) / 100) : 0;
     const wk = Math.max(1, Math.ceil(hours / S.hoursPerWeek / (mult > 1 ? mult : 1)));
     const weeks = hours <= 16 ? "до 1 тижня" : wk === 1 ? "1–2 тижні" : wk + "–" + (wk + 1) + " тиж.";
@@ -358,7 +362,8 @@
     return { items, hours, rate, big, mult, price, promo, promoPrice, priceMin: price, priceMax: price, ha: hours, hb: hours, weeks };
   }
   const finalPrice = e => e.promoPrice || e.price;
-  const priceLine = e => e.promoPrice ? "**" + money(e.promoPrice) + "** замість ~~" + money(e.price) + "~~ (акція −" + e.promo + "%)" : "**" + money(e.price) + "**";
+  const promoWord = () => promoActive() ? "акція" : "знижка на перше замовлення";
+  const priceLine = e => e.promoPrice ? "**" + money(e.promoPrice) + "** замість ~~" + money(e.price) + "~~ (" + promoWord() + " −" + e.promo + "%)" : "**" + money(e.price) + "**";
 
   function finishEstimate() {
     const type = st.type;
@@ -400,8 +405,8 @@
     tw.append(t); c.append(tw);
     const body = el("div", "est-body");
     const ul = el("ul");
-    ["Ставка $" + e.rate + " за годину" + (e.big ? " (великий проєкт)" : "") + (e.mult > 1 ? ", терміново +" + Math.round((e.mult - 1) * 100) + "%" : "") + ". Для постійних клієнтів — $" + S.rateMin + "/год",
-     ...(e.promoPrice ? ["Акція " + S.promo.title + " — діє до " + S.promo.until.split("-").reverse().join(".")] : []),
+    ["Ставка $" + S.rateMax + " за годину" + (e.big ? ", а годинам понад " + (S.bigProjectHours || 60) + " — $" + S.rateMin + " (великий проєкт)" : "") + (e.mult > 1 ? ", терміново +" + Math.round((e.mult - 1) * 100) + "%" : "") + ". Для постійних клієнтів — $" + S.rateMin + "/год",
+     ...(e.promoPrice ? [promoActive() ? "Акція " + S.promo.title + " — діє до " + S.promo.until.split("-").reverse().join(".") : "Знижка −" + S.discounts.firstOrder + "% на перше замовлення; постійним клієнтам −" + S.discounts.regular + "%"] : []),
      "Не входить: хостинг (сервер), домен і платні сервіси — оплачує клієнт"].forEach(x => ul.append(el("li", null, x)));
     body.append(ul, el("div", "warn", D.NOTE));
     c.append(body); log.append(c);
@@ -537,7 +542,7 @@
     if (isCmd(text, "human")) return humanForm();
     const type = detectType(text);
     const fq = matchFaq(text);
-    if (fq && fq.glossary && text.length <= 160) return answerFaq(fq, text);   // «що таке …» — пояснюємо, а не рахуємо
+    if (fq && fq.glossary && text.length <= 160 && !(type && wantsBuild(text))) return answerFaq(fq, text);   // «хочу лендінг» — рахуємо, «що таке лендінг» — пояснюємо   // «що таке …» — пояснюємо, а не рахуємо
     if (text.length > 160) {
       if (fq && fq.id === "refuse") return answerFaq(fq, text);
       if (type) { say("Зрозумів, вам потрібно: **" + D.TYPES.find(t => t.id === type).label + "**."); return startEstimate(type, text); }
@@ -586,7 +591,7 @@
     if (isCmd(text, "menu")) return "cmd:menu";
     if (isCmd(text, "human")) return "cmd:human";
     const type = detectType(text), fq = matchFaq(text);
-    if (fq && fq.glossary && text.length <= 160) return fq.id;
+    if (fq && fq.glossary && text.length <= 160 && !(type && wantsBuild(text))) return fq.id;
     if (text.length > 160) return type ? "type:" + type : "pick";
     if (fq && FAQ_FIRST.includes(fq.id)) return fq.id;
     if (type && (wantsBuild(text) || text.length > 50 || !fq)) return "type:" + type;
