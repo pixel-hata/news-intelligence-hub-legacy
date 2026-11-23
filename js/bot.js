@@ -191,6 +191,29 @@
     if (text && LEARN) { LEARN.logUnknown(text, st.mode); st.lastUnknown = text; }
     say(D.FALLBACK[fbN++ % D.FALLBACK.length] + (text ? "\n\nЯ записав ваше питання — команда навчить мене на нього відповідати." : ""), D.MENU.concat([]));
   }
+  /* «Хочу сайт» без подробиць: простими словами допомагаємо обрати, який саме сайт потрібен. */
+  const SPECIFIC_SITE = /(лендінг|лендинг|односторінк|одностраничн|магазин|кошик|корзин|товар|багатосторін|многостранич|корпоратив|візитк|визитк|портфол|каталог|запис|кабінет|кабинет|школ|курс|crm|срм|бот)/;
+  function isVagueSite(text) {
+    const t = norm(text);
+    const n = t.trim().split(" ").length;
+    // лише коли людина хоче сайт («хочу сайт», «потрібен сайт для салону») або пише одне-два слова; «скільки коштує сайт» — це питання про ціну
+    return /сайт|site|веб/.test(t) && !SPECIFIC_SITE.test(t) && n <= 9 && (wantsBuild(text) || n <= 2) && !/(скільки|сколько|ціна|цена|вартість|стоит|коштує|термін|срок)/.test(t);
+  }
+  function chooseSiteKind(text) {
+    st = { mode: "pick", description: text || "" };
+    say("Залюбки допоможу! Підкажіть, що має робити сайт — оберіть найближче, навіть якщо не впевнені:\n\n" +
+        "• **Одна сторінка** — коротко про вас і кнопка «залишити заявку». Найшвидше й найдешевше.\n" +
+        "• **Сайт на кілька сторінок** — послуги, про нас, роботи, контакти. Для компанії чи майстра.\n" +
+        "• **Продавати товари** — каталог, кошик, оформлення замовлення.\n" +
+        "• **Запис клієнтів, кабінет чи сервіс** — люди самі записуються, мають особистий кабінет.\n" +
+        "• **Не знаю** — поставлю кілька простих питань і порадимо.", [
+      { label: "Одна сторінка (лендінг)", action: "type:landing" },
+      { label: "Сайт на кілька сторінок", action: "type:site" },
+      { label: "Продавати товари (магазин)", action: "type:shop" },
+      { label: "Запис, кабінет або сервіс", action: "type:webapp" },
+      { label: "Не знаю, порадьте", action: "faq:no_tz" }
+    ]);
+  }
   function chooseType() {
     st = { mode: "pick", description: "" };
     say("Що будемо робити? Оберіть тип проєкту:", D.TYPES.map(t => ({ label: t.label, action: "type:" + t.id })));
@@ -552,6 +575,7 @@
     }
     const f = matchFaq(text);
     if (f && FAQ_FIRST.includes(f.id)) return answerFaq(f, text);
+    if (type === "site" && isVagueSite(text) && !(f && FAQ_FIRST.includes(f.id))) return chooseSiteKind(text);
     if (type && (wantsBuild(text) || text.length > 50 || !f)) {
       say("Зрозумів, вам потрібно: **" + D.TYPES.find(t => t.id === type).label + "**.");
       return startEstimate(type, text.length > 25 ? text : "");
@@ -594,6 +618,7 @@
     if (fq && fq.glossary && text.length <= 160 && !(type && wantsBuild(text))) return fq.id;
     if (text.length > 160) return type ? "type:" + type : "pick";
     if (fq && FAQ_FIRST.includes(fq.id)) return fq.id;
+    if (type === "site" && isVagueSite(text)) return "cmd:site-kind";
     if (type && (wantsBuild(text) || text.length > 50 || !fq)) return "type:" + type;
     if (isCmd(text, "estimate") && !fq) return "cmd:estimate";
     return fq ? fq.id : "fallback";
