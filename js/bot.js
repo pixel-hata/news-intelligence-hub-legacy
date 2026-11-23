@@ -380,10 +380,12 @@
       if (o.mult) mult *= o.mult;
       if (!o.h || (!o.h[0] && !o.h[1])) return;
       if (onlyCore && o.opt) return;
-      items.push({ item: o.item || o.label, h: o.h.slice() });
+      items.push({ item: o.item || o.label, h: o.h.slice(), feature: !!o.feature });
     }));
     if (items.length && type.id !== "brand" && type.id !== "design") items.push({ item: "Тестування і запуск", h: [4, 10] });
-    items.forEach(i => { i.hours = hrs(i.h); });
+    // функції (запис, каталог, кабінет, кошик…) у таблицях записані реалістично — беремо частку годин;
+    // базова частина і обсяг записані з великим запасом — стискаємо формулою
+    items.forEach(i => { i.hours = i.feature ? Math.max(1, Math.round((i.h[0] + i.h[1]) / 2 * (S.featureScale || 1))) : hrs(i.h); });
     let hours = items.reduce((s, i) => s + i.hours, 0);
     const cap = S.bigProjectHours || 60;
     // поступова ставка: перші 60 год — $15, кожна наступна — $10 (великі обсяги дешевші, але сума ніколи не падає)
