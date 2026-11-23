@@ -17,6 +17,26 @@
   const transcript = [];
   let formN = 0;
 
+  /* ---------- памʼять розмови: після оновлення сторінки чат не зникає ---------- */
+  const KC = "pixelhata.chat.v1", KEEP_DAYS = 14;
+  let hist = [], restoring = false;
+  function saveChat() {
+    if (restoring) return;
+    try {
+      const s = Object.assign({}, st); delete s.type;
+      if (s.mode === "contact" || s.mode === "human") s.mode = "done";
+      localStorage.setItem(KC, JSON.stringify({ at: Date.now(), hist: hist.slice(-80), st: s, transcript: transcript.slice(-120) }));
+    } catch (e) {}
+  }
+  function loadChat() {
+    try {
+      const v = JSON.parse(localStorage.getItem(KC) || "null");
+      if (!v || !Array.isArray(v.hist) || v.hist.length < 2 || Date.now() - v.at > KEEP_DAYS * 864e5) return null;
+      return v;
+    } catch (e) { return null; }
+  }
+  function clearChat() { try { localStorage.removeItem(KC); } catch (e) {} }
+
   /* ---------- rendering ---------- */
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const md = s => esc(fill(s)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/~~(.+?)~~/g, "<s>$1</s>").replace(/\n/g, "<br>");
@@ -24,7 +44,7 @@
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
   function userMsg(text) {
-    const d = el("div", "msg me", text); log.append(d); transcript.push({ role: "user", text }); scroll();
+    const d = el("div", "msg me", text); log.append(d); transcript.push({ role: "user", text }); hist.push({ r: "u", t: text }); saveChat(); scroll();
   }
   function clearButtons() { log.querySelectorAll(".chips").forEach(c => c.remove()); }
 
@@ -38,7 +58,9 @@
         typing.remove();
         const d = el("div", "msg bot"); d.innerHTML = md(text); log.append(d);
         transcript.push({ role: "bot", text: fill(text).replace(/\*\*|~~/g, "") });
+        hist.push({ r: "b", h: d.innerHTML });
         if (buttons) renderButtons(buttons);
+        saveChat();
         scroll(); res();
       }, delay);
     }));
@@ -165,6 +187,7 @@
   /* ---------- actions ---------- */
   function run(action, extra) {
     if (action === "menu") return showMenu();
+    if (action === "newchat") { clearChat(); hist = []; transcript.length = 0; st = { mode: "idle" }; log.replaceChildren(); return greet(); }
     if (action === "estimate") return chooseType();
     if (action === "human") return humanForm();
     if (action.startsWith("type:")) return startEstimate(action.slice(5), extra || st.description || "");
@@ -434,6 +457,7 @@
      "Не входить: хостинг (сервер), домен і платні сервіси — оплачує клієнт"].forEach(x => ul.append(el("li", null, x)));
     body.append(ul, el("div", "warn", D.NOTE));
     c.append(body); log.append(c);
+    if (!restoring) { hist.push({ r: "card" }); saveChat(); }
   }
   function showMvp() {
     const e = st.estimate; if (!e || !e.mvp) return answerFaq(faqById("cheaper"));
@@ -608,8 +632,31 @@
     setTimeout(() => { clearButtons(); run(act); }, 350);
   }));
 
-  /* greeting */
-  say("Вітаю! Я бот-помічник Pixel Hata. Порахую попередню вартість вашого проєкту або відповім на питання про роботу: ціни, терміни, оплату, хостинг.\n\nОберіть кнопку або напишіть своїми словами, наприклад: «хочу інтернет-магазин одягу». Не знаєте, що саме потрібно, — не страшно: я допоможу скласти ТЗ.", "menu");
+  /* greeting or restored conversation */
+  function greet() { say("Вітаю! Я бот-помічник Pixel Hata. Порахую попередню вартість вашого проєкту або відповім на питання про роботу: ціни, терміни, оплату, хостинг.\n\nОберіть кнопку або напишіть своїми словами, наприклад: «хочу інтернет-магазин одягу». Не знаєте, що саме потрібно, — не страшно: я допоможу скласти ТЗ.", "menu"); }
+  function restoreChat(v) {
+    restoring = true;
+    try {
+      hist = v.hist; v.transcript && transcript.push(...v.transcript);
+      st = v.st || { mode: "idle" };
+      if (st.typeId) st.type = D.TYPES.find(x => x.id === st.typeId);
+      hist.forEach(m => {
+        if (m.r === "u") log.append(el("div", "msg me", m.t));
+        else if (m.r === "b") { const d = el("div", "msg bot"); d.innerHTML = m.h; log.append(d); }
+        else if (m.r === "card" && st.estimate && st.type) estimateCard(st.estimate);
+      });
+    } catch (e) { restoring = false; hist = []; st = { mode: "idle" }; log.replaceChildren(); clearChat(); return greet(); }
+    restoring = false;
+    const note = el("div", "msg bot"); note.innerHTML = "↩︎ Ми продовжуємо вашу розмову.";
+    log.append(note);
+    const fresh = { label: "Почати нову розмову", action: "newchat" };
+    if (st.mode === "estimate" && st.type && st.type.questions[st.qi]) renderOptions(curQ());
+    else if (st.mode === "done" && st.estimate) renderButtons([{ label: "Надіслати заявку", action: "send" }, { label: "Змінити відповіді", action: "redo" }, { label: "Меню", action: "menu" }, fresh]);
+    else renderButtons(D.MENU.concat([fresh]));
+    scroll();
+  }
+  const saved = loadChat();
+  if (saved) restoreChat(saved); else greet();
 
   /* Для перевірок: як бот зрозуміє повідомлення поза оцінкою (без відповіді в чат). */
   function route(text) {
