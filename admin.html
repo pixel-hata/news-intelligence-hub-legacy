@@ -7,8 +7,8 @@
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/site.css?v=202611222202">
-<link rel="stylesheet" href="css/bot.css?v=202611222202">
+<link rel="stylesheet" href="css/site.css?v=202611231511">
+<link rel="stylesheet" href="css/bot.css?v=202611231511">
 <style>
 [hidden]{display:none!important}
 .badge:empty{display:none}
@@ -161,10 +161,10 @@
   </section>
 </div>
 
-<script src="js/bot-data.js?v=202611222202"></script>
-<script src="js/leads.js?v=202611222202"></script>
-<script src="js/learn.js?v=202611222202"></script>
-<script src="js/content.js?v=202611222202"></script>
+<script src="js/bot-data.js?v=202611231511"></script>
+<script src="js/leads.js?v=202611231511"></script>
+<script src="js/learn.js?v=202611231511"></script>
+<script src="js/content.js?v=202611231511"></script>
 <script>
 (function () {
   const L = window.PHLeads, LR = window.PHLearn;
@@ -205,7 +205,7 @@
       const meta = el("div", "lead-meta");
       meta.append(el("span", null, new Date(l.createdAt).toLocaleString("uk-UA")));
       if (l.contact) { const s = el("span"); s.append("Клієнт: ", el("b", null, l.contact.name), " · " + l.contact.contact); meta.append(s); }
-      if (l.estimate) { const s = el("span"); s.append("Оцінка: ", el("b", null, L.money(l.estimate.priceMin) + " – " + L.money(l.estimate.priceMax)), " · " + l.estimate.weeks); meta.append(s); }
+      if (l.estimate) { const s = el("span"); s.append("Оцінка: ", el("b", null, L.priceText(l.estimate)), " · " + l.estimate.weeks); meta.append(s); }
       a.append(top, meta);
       if (l.question) a.append(el("p", null, "Питання: " + l.question));
       const d1 = el("details"); d1.open = true; d1.append(el("summary", null, "Попереднє ТЗ"), el("pre", null, l.tz || "")); a.append(d1);
@@ -388,8 +388,8 @@
 })();
 </script>
 <script src="vendor/supabase.js"></script>
-<script src="js/auth-config.js?v=202611222202"></script>
-<script src="js/learn-cloud.js?v=202611222202"></script>
-<script src="js/admin-auth.js?v=202611222202"></script>
+<script src="js/auth-config.js?v=202611231511"></script>
+<script src="js/learn-cloud.js?v=202611231511"></script>
+<script src="js/admin-auth.js?v=202611231511"></script>
 </body>
 </html>

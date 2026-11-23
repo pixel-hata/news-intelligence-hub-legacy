@@ -24,6 +24,10 @@ window.PHLeads = (function () {
 
   const money = n => "$" + Math.round(n).toLocaleString("en-US");
   const dt = s => { try { return new Date(s).toLocaleString("uk-UA"); } catch (e) { return s; } };
+  /* Сума з оцінки: нові заявки — одна сума (+ акція), старі — діапазон. */
+  const priceText = e => !e ? "" : e.price != null
+    ? (e.promoPrice ? money(e.promoPrice) + " (зі знижкою " + e.promo + "%, без знижки " + money(e.price) + ")" : money(e.price))
+    : money(e.priceMin) + " – " + money(e.priceMax);
   const fill = t => String(t)
     .replace(/\$\{(\w+)\}/g, (m, k) => k in D.STUDIO ? "$" + D.STUDIO[k] : m)
     .replace(/\{(\w+)\}/g, (m, k) => k in D.STUDIO ? D.STUDIO[k] : m);
@@ -50,12 +54,13 @@ window.PHLeads = (function () {
       L.push(""); L.push("## Попередня оцінка");
       L.push("| Роботи | Години | Вартість |");
       L.push("|---|---|---|");
-      e.items.forEach(i => L.push("| " + i.item + " | " + i.h[0] + "–" + i.h[1] + " | " + money(i.h[0] * D.STUDIO.rateMin * e.mult) + " – " + money(i.h[1] * D.STUDIO.rateMax * e.mult) + " |"));
-      L.push("| **Разом** | **" + e.ha + "–" + e.hb + "** | **" + money(e.priceMin) + " – " + money(e.priceMax) + "** |");
+      e.items.forEach(i => L.push("| " + i.item + " | " + (i.hours != null ? i.hours : i.h[0] + "–" + i.h[1]) + " | " + (i.cost != null ? money(i.cost) : money(i.h[0] * D.STUDIO.rateMin * e.mult) + " – " + money(i.h[1] * D.STUDIO.rateMax * e.mult)) + " |"));
+      L.push("| **Разом** | **" + (e.hours != null ? e.hours : e.ha + "–" + e.hb) + "** | **" + priceText(e) + "** |");
       L.push("");
-      L.push("- Ставка: $" + D.STUDIO.rateMin + "–" + D.STUDIO.rateMax + " за годину" + (e.mult > 1 ? ", терміново ×" + e.mult : ""));
+      L.push("- Ставка: $" + (e.rate || (D.STUDIO.rateMin + "–" + D.STUDIO.rateMax)) + " за годину" + (e.mult > 1 ? ", терміново ×" + e.mult : ""));
+      L.push("- Сума попередня: може змінитися в процесі обговорення та консультації");
       L.push("- Термін: " + e.weeks);
-      if (e.mvp) L.push("- Мінімальна версія (без додаткових функцій): " + money(e.mvp.priceMin) + " – " + money(e.mvp.priceMax));
+      if (e.mvp) L.push("- Мінімальна версія (без додаткових функцій): " + priceText(e.mvp));
     }
     L.push(""); L.push("## Не входить у вартість");
     L.push("- Хостинг (сервер) і домен — оплачує клієнт напряму провайдеру");
@@ -78,7 +83,7 @@ window.PHLeads = (function () {
       lead.kind === "question" ? "❓ Питання з сайту Pixel Hata" : "🟠 Нова заявка Pixel Hata",
       lead.contact ? "Клієнт: " + lead.contact.name + " · " + lead.contact.contact : "",
       lead.title ? "Проєкт: " + lead.title : "",
-      e ? "Оцінка: " + money(e.priceMin) + " – " + money(e.priceMax) + ", " + e.weeks : "",
+      e ? "Оцінка: " + priceText(e) + ", " + e.weeks : "",
       lead.question ? "Питання: " + lead.question : "",
       lead.contact && lead.contact.comment ? "Коментар: " + lead.contact.comment : "",
       "Час: " + dt(lead.createdAt)
@@ -91,12 +96,12 @@ window.PHLeads = (function () {
     if (!/^https?:$/.test(location.protocol)) return { ok: false, offline: true };
     try {
       const r = await fetch("api/lead", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lead: { id: lead.id, kind: lead.kind, title: lead.title, contact: lead.contact, question: lead.question || "", estimate: lead.estimate ? { priceMin: lead.estimate.priceMin, priceMax: lead.estimate.priceMax, weeks: lead.estimate.weeks } : null, createdAt: lead.createdAt },
+        body: JSON.stringify({ lead: { id: lead.id, kind: lead.kind, title: lead.title, contact: lead.contact, question: lead.question || "", estimate: lead.estimate ? { price: lead.estimate.price, promoPrice: lead.estimate.promoPrice, priceMin: lead.estimate.priceMin, priceMax: lead.estimate.priceMax, weeks: lead.estimate.weeks } : null, createdAt: lead.createdAt },
           tz: lead.tz || "", message: telegramText(lead), website: "" }) });
       const j = await r.json().catch(() => ({}));
       return { ok: r.ok && j.ok !== false, channels: j.channels || [] };
     } catch (e) { return { ok: false }; }
   }
 
-  return { list, save, send, remove, clear, buildTz, telegramText, fill, money };
+  return { list, save, send, remove, clear, buildTz, telegramText, fill, money, priceText };
 })();

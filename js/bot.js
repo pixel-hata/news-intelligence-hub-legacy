@@ -19,7 +19,7 @@
 
   /* ---------- rendering ---------- */
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const md = s => esc(fill(s)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>");
+  const md = s => esc(fill(s)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/~~(.+?)~~/g, "<s>$1</s>").replace(/\n/g, "<br>");
   const scroll = () => { log.scrollTop = log.scrollHeight; };
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
@@ -37,7 +37,7 @@
       setTimeout(() => {
         typing.remove();
         const d = el("div", "msg bot"); d.innerHTML = md(text); log.append(d);
-        transcript.push({ role: "bot", text: fill(text).replace(/\*\*/g, "") });
+        transcript.push({ role: "bot", text: fill(text).replace(/\*\*|~~/g, "") });
         if (buttons) renderButtons(buttons);
         scroll(); res();
       }, delay);
@@ -317,8 +317,16 @@
     return hits.length ? (q.multi ? hits : [hits[0]]) : null;
   }
 
+  /* Акція діє до кінця дня S.promo.until (за київським часом достатньо локального). */
+  function promoActive() {
+    const p = S.promo; if (!p || !p.percent || !p.until) return false;
+    return Date.now() <= new Date(p.until + "T23:59:59").getTime();
+  }
+  /* Одна конкретна сума: години (ринкова норма) × ставка ($15, для великих проєктів $10) × терміновість, далі акція. */
   function calc(answers, type, onlyCore) {
     const items = [];
+    const sc = S.hoursScale || 1;
+    const hrs = h => Math.max(1, Math.round((h[0] + h[1]) / 2 * sc));
     (type.base || []).forEach(b => items.push({ item: b.item, h: b.h.slice() }));
     let mult = 1;
     answers.forEach(a => a.options.forEach(o => {
@@ -328,14 +336,29 @@
       items.push({ item: o.item || o.label, h: o.h.slice() });
     }));
     if (items.length && type.id !== "brand" && type.id !== "design") items.push({ item: "Тестування і запуск", h: [4, 10] });
-    const ha = items.reduce((s, i) => s + i.h[0], 0), hb = items.reduce((s, i) => s + i.h[1], 0);
-    const r10 = v => Math.round(v / 10) * 10;
-    const priceMin = r10(ha * S.rateMin * mult), priceMax = r10(hb * S.rateMax * mult);
-    let wMin = Math.max(1, Math.round(ha / S.hoursPerWeek)), wMax = Math.max(wMin + 1, Math.ceil(hb / S.hoursPerWeek));
-    if (mult > 1) { wMin = Math.max(1, Math.round(wMin / mult)); wMax = Math.max(wMin + 1, Math.ceil(wMax / mult)); }
-    const weeks = hb <= 24 ? "до 1 тижня" : wMin + "–" + wMax + " тиж.";
-    return { items, ha, hb, mult, priceMin, priceMax, weeks };
+    items.forEach(i => { i.hours = hrs(i.h); });
+    let hours = items.reduce((s, i) => s + i.hours, 0);
+    const big = hours >= (S.bigProjectHours || 60);
+    const rate = big ? S.rateMin : S.rateMax;
+    const r5 = v => Math.round(v / 5) * 5;
+    // мінімальний обсяг для цього типу проєкту: доповнюємо розбивку, щоб години й сума сходилися
+    const floor = (S.minPrice || {})[type.id] || 20;
+    if (hours * rate < floor) {
+      const add = Math.ceil((floor - hours * rate) / rate);
+      items.push({ item: "Базова частина: структура, налаштування, перевірка", h: [0, 0], hours: add });
+      hours += add;
+    }
+    items.forEach(i => { i.cost = r5(i.hours * rate * mult); });
+    const price = r5(hours * rate * mult);
+    const promo = promoActive() ? S.promo.percent : 0;
+    const promoPrice = promo ? r5(price * (100 - promo) / 100) : 0;
+    const wk = Math.max(1, Math.ceil(hours / S.hoursPerWeek / (mult > 1 ? mult : 1)));
+    const weeks = hours <= 16 ? "до 1 тижня" : wk === 1 ? "1–2 тижні" : wk + "–" + (wk + 1) + " тиж.";
+    // priceMin/priceMax залишено для сумісності зі старими заявками
+    return { items, hours, rate, big, mult, price, promo, promoPrice, priceMin: price, priceMax: price, ha: hours, hb: hours, weeks };
   }
+  const finalPrice = e => e.promoPrice || e.price;
+  const priceLine = e => e.promoPrice ? "**" + money(e.promoPrice) + "** замість ~~" + money(e.price) + "~~ (акція −" + e.promo + "%)" : "**" + money(e.price) + "**";
 
   function finishEstimate() {
     const type = st.type;
@@ -347,10 +370,10 @@
     }
     const e = calc(st.answers, type, false);
     const core = calc(st.answers, type, true);
-    if (core.priceMax < e.priceMax) e.mvp = { priceMin: core.priceMin, priceMax: core.priceMax, items: core.items };
+    if (core.price < e.price) e.mvp = { price: core.price, promoPrice: core.promoPrice, promo: core.promo, priceMin: core.price, priceMax: core.price, items: core.items };
     st.estimate = e;
     st.title = type.title;
-    say("Готово! Орієнтовна вартість: **" + money(e.priceMin) + " – " + money(e.priceMax) + "**, термін " + e.weeks.replace(/\.$/, "") + ". Деталі нижче.");
+    say("Готово! Попередня вартість: " + priceLine(e) + ", термін " + e.weeks.replace(/\.$/, "") + ". Сума може змінитися після обговорення та консультації. Деталі нижче.");
     after(() => estimateCard(e));
     say("Що далі?", [
       { label: "Надіслати заявку", action: "send" },
@@ -366,15 +389,19 @@
     const c = el("div", "est");
     const h = el("div", "est-head");
     h.append(el("span", "k", "Попередня оцінка"), el("h4", null, st.type.title));
-    const tot = el("div", "total"); tot.append(el("span", null, money(e.priceMin) + " – " + money(e.priceMax)), " ", el("small", null, "· " + e.ha + "–" + e.hb + " год · " + e.weeks));
+    const tot = el("div", "total");
+    if (e.promoPrice) { const s = el("s", "old", money(e.price)); tot.append(el("span", null, money(e.promoPrice)), " ", s, " ", el("span", "promo-tag", "−" + e.promo + "%")); }
+    else tot.append(el("span", null, money(e.price)));
+    tot.append(" ", el("small", null, "· ≈" + e.hours + " год · " + e.weeks));
     h.append(tot); c.append(h);
     const tw = el("div", "tbl"), t = document.createElement("table");
     t.innerHTML = '<thead><tr><th>Роботи</th><th class="r">Години</th><th class="r">Вартість</th></tr></thead><tbody></tbody>';
-    e.items.forEach(i => { const tr = document.createElement("tr"); tr.append(el("td", null, i.item), el("td", "r", i.h[0] + "–" + i.h[1]), el("td", "r", money(i.h[0] * S.rateMin * e.mult) + " – " + money(i.h[1] * S.rateMax * e.mult))); t.tBodies[0].append(tr); });
+    e.items.forEach(i => { const tr = document.createElement("tr"); tr.append(el("td", null, i.item), el("td", "r", String(i.hours)), el("td", "r", money(i.cost))); t.tBodies[0].append(tr); });
     tw.append(t); c.append(tw);
     const body = el("div", "est-body");
     const ul = el("ul");
-    ["Ставка $" + S.rateMin + "–" + S.rateMax + " за годину" + (e.mult > 1 ? ", терміново +" + Math.round((e.mult - 1) * 100) + "%" : ""),
+    ["Ставка $" + e.rate + " за годину" + (e.big ? " (великий проєкт)" : "") + (e.mult > 1 ? ", терміново +" + Math.round((e.mult - 1) * 100) + "%" : "") + ". Для постійних клієнтів — $" + S.rateMin + "/год",
+     ...(e.promoPrice ? ["Акція " + S.promo.title + " — діє до " + S.promo.until.split("-").reverse().join(".")] : []),
      "Не входить: хостинг (сервер), домен і платні сервіси — оплачує клієнт"].forEach(x => ul.append(el("li", null, x)));
     body.append(ul, el("div", "warn", D.NOTE));
     c.append(body); log.append(c);
@@ -382,12 +409,12 @@
   function showMvp() {
     const e = st.estimate; if (!e || !e.mvp) return answerFaq(faqById("cheaper"));
     const removed = e.items.filter(i => !e.mvp.items.some(x => x.item === i.item)).map(i => "• " + i.item);
-    say("Мінімальна версія (MVP) — без додаткових функцій — коштуватиме приблизно **" + money(e.mvp.priceMin) + " – " + money(e.mvp.priceMax) + "**.\n\nЩо відкладаємо на потім:\n" + removed.join("\n") + "\n\nЇх можна додати після запуску, коли побачите, що потрібно саме вам.",
+    say("Мінімальна версія (MVP) — без додаткових функцій — коштуватиме приблизно " + priceLine(e.mvp) + ".\n\nЩо відкладаємо на потім:\n" + removed.join("\n") + "\n\nЇх можна додати після запуску, коли побачите, що потрібно саме вам.",
       [{ label: "Надіслати заявку", action: "send" }, { label: "Змінити відповіді", action: "redo" }, { label: "Меню", action: "menu" }]);
   }
   function estimateText() {
     const e = st.estimate; if (!e) return "";
-    return "Оцінка Pixel Hata: " + st.type.title + "\n" + e.items.map(i => "• " + i.item + ": " + i.h[0] + "–" + i.h[1] + " год").join("\n") + "\nРазом: " + money(e.priceMin) + " – " + money(e.priceMax) + ", " + e.weeks + "\n" + D.NOTE;
+    return "Оцінка Pixel Hata: " + st.type.title + "\n" + e.items.map(i => "• " + i.item + ": ≈" + i.hours + " год").join("\n") + "\nРазом: " + money(finalPrice(e)) + (e.promoPrice ? " (зі знижкою " + e.promo + "%, без знижки " + money(e.price) + ")" : "") + ", " + e.weeks + "\n" + D.NOTE;
   }
   function copyEstimate() {
     const txt = estimateText();
@@ -409,7 +436,7 @@
           id: "L" + Date.now().toString(36), kind: "estimate", createdAt: new Date().toISOString(),
           title: st.title || (st.type && st.type.title) || "Проєкт", typeId: st.typeId || null,
           description: st.description || "", answers: (st.answers || []).map(a => ({ question: a.question, labels: a.labels, tz: a.tz })),
-          estimate: st.estimate ? { items: st.estimate.items, ha: st.estimate.ha, hb: st.estimate.hb, mult: st.estimate.mult, priceMin: st.estimate.priceMin, priceMax: st.estimate.priceMax, weeks: st.estimate.weeks, mvp: st.estimate.mvp ? { priceMin: st.estimate.mvp.priceMin, priceMax: st.estimate.mvp.priceMax } : null } : null,
+          estimate: st.estimate ? { items: st.estimate.items, hours: st.estimate.hours, rate: st.estimate.rate, ha: st.estimate.ha, hb: st.estimate.hb, mult: st.estimate.mult, price: st.estimate.price, promo: st.estimate.promo, promoPrice: st.estimate.promoPrice, priceMin: st.estimate.priceMin, priceMax: st.estimate.priceMax, weeks: st.estimate.weeks, mvp: st.estimate.mvp ? { price: st.estimate.mvp.price, promoPrice: st.estimate.mvp.promoPrice, promo: st.estimate.mvp.promo, priceMin: st.estimate.mvp.priceMin, priceMax: st.estimate.mvp.priceMax } : null } : null,
           contact: { name: v.name, contact: v.contact, comment: v.comment || "" },
           transcript: transcript.slice(-120)
         };

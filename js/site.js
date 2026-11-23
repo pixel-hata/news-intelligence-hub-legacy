@@ -30,3 +30,20 @@
   }
   document.addEventListener("keydown", e => { if (e.ctrlKey && e.shiftKey && (e.key === "Y" || e.key === "y")) go(); });
 })();
+
+/* Акція −50%: смужка вгорі і вікно при першому заході (раз за сесію). Після дати акції — нічого не показуємо. */
+(function () {
+  const p = (window.PH_DATA && window.PH_DATA.STUDIO && window.PH_DATA.STUDIO.promo) || { until: "2027-07-31" };
+  if (Date.now() > new Date(p.until + "T23:59:59").getTime()) return;
+  const bar = document.getElementById("promoBar"), m = document.getElementById("promoModal");
+  if (bar) bar.hidden = false;
+  if (!m) return;
+  let seen = false; try { seen = sessionStorage.getItem("ph.promo.seen") === "1"; } catch (e) {}
+  const close = () => { m.hidden = true; try { sessionStorage.setItem("ph.promo.seen", "1"); } catch (e) {} };
+  if (!seen) setTimeout(() => { m.hidden = false; const b = document.getElementById("promoGo"); b && b.focus({ preventScroll: true }); }, 700);
+  document.getElementById("promoClose").onclick = close;
+  m.addEventListener("click", e => { if (e.target === m) close(); });
+  document.getElementById("promoGo").addEventListener("click", close);
+  document.getElementById("promoReady").addEventListener("click", close);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !m.hidden) close(); });
+})();

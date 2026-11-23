@@ -133,3 +133,50 @@ details.pr th{color:var(--coral-l)}
 .person:has(.ph img) .txt{padding:4px 28px 28px 24px;align-content:start}
 @media (max-width:560px){.person:has(.ph img){grid-template-columns:1fr;padding:20px 20px 0}.person:has(.ph img) .ph{width:min(260px,100%)}.person:has(.ph img) .txt{padding:16px 0 24px}}
 .ready .txt a.code{justify-self:start;font-weight:700;color:var(--coral-l);display:inline-flex;align-items:center;gap:6px;min-height:40px}
+/* Оцінка бота: стара ціна закреслена, акційна — поруч */
+.est .total s.old{font-size:.6em;color:var(--dim);font-weight:600}
+.est .total .promo-tag{font:800 12px var(--f-body);letter-spacing:.08em;color:#0A0B12;background:var(--coral-l,#FF8A6A);border-radius:999px;padding:3px 9px;vertical-align:middle}
+.msg del,.msg s{color:var(--dim)}
+
+/* ===== Акція −50% ===== */
+.promo-note{margin:4px 0 0;padding:12px 14px;border-radius:14px;background:rgba(255,106,69,.12);border:1px solid rgba(255,106,69,.4);color:#FFD3C8;font-size:15px}
+.prow .p s,.two-price s{color:var(--dim);font-size:.7em;font-weight:600;margin-left:4px}
+.promo-bar{position:relative;z-index:51;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 14px;padding:9px max(16px,env(safe-area-inset-left,0px));
+  background:linear-gradient(90deg,#3550F0,#FF3D6E);color:#fff;font:700 14px var(--f-body);text-align:center}
+.promo-bar a{color:#fff;text-decoration:underline;text-underline-offset:3px;min-height:32px;display:inline-flex;align-items:center}
+.promo-modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px max(16px,env(safe-area-inset-left,0px));background:rgba(5,6,10,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.promo-modal[hidden]{display:none}
+.promo-card{position:relative;width:min(460px,100%);border-radius:26px;padding:34px 28px 26px;overflow:hidden;text-align:center;display:grid;gap:14px;
+  background:radial-gradient(120% 80% at 0% 0%,rgba(53,80,240,.55),transparent 60%),radial-gradient(120% 80% at 100% 100%,rgba(255,61,110,.5),transparent 60%),#12131D;border:1px solid #3A3D52;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:pIn .35s ease-out}
+@keyframes pIn{from{transform:translateY(14px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.promo-card{animation:none}}
+.promo-card .big{font:800 clamp(64px,18vw,96px)/.9 var(--f-display);letter-spacing:-.05em;background:linear-gradient(90deg,#FFB36B,#FF3D6E);-webkit-background-clip:text;background-clip:text;color:transparent}
+.promo-card h2{margin:0;font:700 clamp(20px,5vw,26px)/1.2 var(--f-display)}
+.promo-card p{margin:0;color:#C9CCDC;font-size:16px}
+.promo-card img{width:64px;height:64px;justify-self:center}
+.promo-card .x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#fff;font-size:22px;cursor:pointer}
+.promo-card .acts{display:grid;gap:10px;margin-top:6px}
+
+/* ===== Мобільна версія ===== */
+@media (max-width:640px){
+  .prow{grid-template-columns:1fr;gap:6px}
+  .prow .n{font-size:18px}
+  .prow .p{text-align:left;font-size:18px;order:2}
+  .prow .d{order:3}.prow .t{order:4}
+  .two-price{flex-wrap:wrap;gap:6px 14px}
+}
+@media (max-width:520px){
+  .nav .in{flex-wrap:nowrap;min-height:60px;gap:10px}
+  .brand{font-size:16px;gap:8px;min-width:0}
+  .brand img{width:32px;height:32px}
+  .nav .btn.hot{min-height:38px!important;padding:0 14px!important;font-size:13px!important;white-space:nowrap;flex:none}
+  .wm-code{white-space:nowrap}
+}
+@media (max-width:360px){.brand .wm-code{display:none}}
+@media (max-width:520px){
+  .tbl table{min-width:0;font-size:13px}
+  .tbl th,.tbl td{padding:8px 10px}
+  .tbl td:first-child{word-break:break-word}
+  .est-head,.est-body{padding-left:14px;padding-right:14px}
+  .est .total{font-size:24px}
+}
